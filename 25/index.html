@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Numeros pares</title>
+    <script src="Ejercicio2.js" charset="UTF-8"></script>
+</head>
+<body>
+<h1>Números pares entre 0 y un valor máximo.</h1>
+<script>
+    var dato1 = prompt("Introduce el valor máximo:");
+
+var maximo = parseInt(dato1);
+
+var numero = 0;
+var texto = "";
+
+while(numero < (maximo + 1)){
+    if (numero % 2 === 0){
+        texto = texto + numero + " ";
+    }
+    numero = numero + 1;
+}
+
+textofinal = "Los números paers entre 0 y " + maximo + " son : \n" + texto;
+
+alert(textofinal);
+console.log(textofinal);
+</script>
+<input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>
+</html>

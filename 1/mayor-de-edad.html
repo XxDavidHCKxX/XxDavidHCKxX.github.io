@@ -1,0 +1,33 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<h1>Programa para saber si somos mayor de edad 18 años</h1>
+<body>
+    <script>
+        //PIDE POR TECLADO LA EDAD
+        var edad = prompt("Introduce tu edad");
+        //COMPRUEBA QUE LO INTRODUCIDO ES UN NÚMERO
+        if (Number(edad) == edad) {
+            //SI ES MAYOR DE 18
+            if (edad > 18) {
+                //IMPRIME EN PANTALLA EL MENSAJE
+                document.write("Sos mayor de edad");
+            }
+            if (edad < 18) {
+                document.write("Sos menor de edad")
+            }
+        }
+        //SINÓ
+        else {
+            //MUESTRA UN MENSAJE
+            alert("Introduce un numero válido");
+        }
+        </script>
+        <br>
+        <input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>
+</html>

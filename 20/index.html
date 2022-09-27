@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="práctica switch / if">
+        <meta name="author" content="Francesc Ricart">
+        <title>Que día de la semana es</title>
+    </head>
+    <body>
+    <h1>Que dia de la semana de la es?</h1>
+    <script>
+        var d = new Date();
+        
+        switch(d.getDay()){
+            case 0:
+            case 6:
+                document.write("estamos en fin de semana");
+                break;
+            default:
+                document.write("hoy no es sábado ni domingo");
+        }
+    </script>
+    <input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+    </body>
+</html>

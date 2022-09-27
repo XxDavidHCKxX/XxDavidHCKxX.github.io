@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html lang="">
+    <h1>Boton que cambia cuando lo presiona</h1>
+    <head>
+        <meta charset="UTF-8">
+        <title>Titulo de la pagina</title>
+        <script>
+            window.onload = function manejador() {
+                document.getElementById("boton").onclick=cambiar;
+            }
+            
+            function cambiar() {
+                document.getElementById("boton").innerHTML="Hola";   
+            }
+        </script>
+    </head>
+    
+    <body>
+        
+        <button id="boton">Presione click para cambiar el boton</button>
+    </body>
+    <input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</html>

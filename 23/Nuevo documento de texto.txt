@@ -1,0 +1,7 @@
+Hay varias posibles soluciones.
+
+Todas tienen en común el uso del método getDay() para un objeto de tipo fecha. La particularidad es que devuelve un número del 0 al 6 siendo el 0 el domingo y el 6 el sábado.
+
+La segunda solución sorprende un poco la primera vez que la ves. Es la solución óptima.
+
+Nos valemos de un array con los días ordenados. Después simplemente hay que pedir al array que nos devuelva la posición que marca el valor numérico devuelto por .getDay()

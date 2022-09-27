@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="práctica functions y while">
+        <meta name="author" content="Francesc Ricart">
+        <title>Ejercicio preguntas infinitas</title>
+    </head>
+    <body>
+    <h1>Pregunta infinitas</h1>
+    <script>
+        
+        emergente();
+        
+        function emergente(){
+            var respuesta = preguntar();
+            var condicion = respuesta.toLowerCase() == "blanco";
+            if (!condicion){
+                emergente();
+            }else{
+                document.write("CORRECTO! El caballo BLANCO de Santiago es " + respuesta);    
+            }    
+        }
+        
+        function preguntar(){
+            return window.prompt("De que color es el caballo BLANCO de Santiago?","rojo no es");
+        }
+    
+    </script>
+    <input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+    </body>
+</html>

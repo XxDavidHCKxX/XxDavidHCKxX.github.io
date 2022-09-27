@@ -1,0 +1,1 @@
+Prompt es usado para introducir información por parte del usuario, la que podrá ser usada por otras funciones.

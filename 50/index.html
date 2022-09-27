@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ejercicio </title>
+	<meta charset="utf-8">
+	<meta name="description" content="Escribir un programa para determinar si un número n es primo (un número primo sólo es divisible por el mismo y por la unidad).">
+	<h1>Escribir un programa para determinar si un número n es primo (un número primo sólo es divisible por el mismo y por la unidad).</h1>
+	<script type="text/javascript">
+		var num=parseInt(prompt("Introduce un número"));
+		var divisor=1;
+		var divisible=0;
+		do{
+		if(num%divisor==0){
+			divisible=divisible+1;
+		}
+		divisor=divisor+1;
+		}while(divisor<=num);
+		if (divisible>2) {
+			document.writeln("El número no es primo");
+		} else {
+			document.writeln("El número es primo");
+		}
+	</script>
+</head>
+<body>
+	<input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ejercicio 46</title>
+	<meta charset="utf-8">
+	<meta name="description" content="Calcular el volumen y el área de una esfera utilizando las formulas:....
+ V = 4π r3/3....
+ V = 4π r2....
+ ....
+">
+<script type="text/javascript">
+	var radio, volumen, area;
+	radio=parseInt(prompt("Escribe el radio de la esfera"));
+	volumen=(4*Math.PI*Math.pow(radio,3))/3;
+	area=4*Math.PI*Math.pow(radio,2);
+	document.writeln("El volumen de la esfera es "+volumen+ " y el area es "+area);
+</script>
+</head>
+<body>
+	<h1>Calcular el volumen y el área de una esfera utilizando las formulas:....</h1>
+	<input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>
+</html>

@@ -1,0 +1,3 @@
+El propósito de una variable es guardar información que pueda ser utilizada más tarde.
+Es un nombre simbólico que representa el dato que el usuario introduce y guarda.
+Ejemplo de su uso.

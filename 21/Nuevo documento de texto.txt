@@ -1,0 +1,10 @@
+SOLUCIÓN DEL EJERCICIO
+Para solucionar este ejercicio se ha prescindido del uso de una función. Habría sido recomendable.
+
+Las horas, minutos y segundos se obtienen mediante getHours(), getMinutes() y getSeconds().
+
+Cuando el valor que devuelven es menor a 10 los valores devueltos sólo tienen una cifra.
+
+Para solucionarlo se escriben 3 simples condicionales que concatenan el string «0» justo delante del valor devuelto. De modo que en lugar de un número pasamos a tener un string.
+
+Como resultado mediante document.write el reloj devuelve por pantalla una hora con el formato hh:mm:ss

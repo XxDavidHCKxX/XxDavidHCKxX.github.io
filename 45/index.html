@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ejercicio 45</title>
+	<meta charset="utf-8">
+	<meta name="description" content="Calcula la media de una serie de números introducidos por teclado.">
+	<script type="text/javascript">
+		var numeros,suma,veces,opcion, media;
+		suma=0;
+		veces=0;
+		do{
+			numeros=parseInt(prompt("Introduce un número"));
+			suma=suma+numeros;
+			veces=veces+1;
+			opcion=parseInt(prompt("¿Quieres introducir otro número?\n1-Si\n2-No"));
+		}while (opcion==1);
+		media=suma/veces;
+		document.writeln("La media es "+media);
+
+	</script>
+</head>
+<body>
+	<h1>Calcula la media de una serie de números introducidos por teclado.</h1>
+	<input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>
+</html>

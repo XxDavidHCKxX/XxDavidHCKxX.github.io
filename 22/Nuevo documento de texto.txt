@@ -1,0 +1,15 @@
+Podemos solucionar el ejercicio con un while o con una función que se llama a si misma siempre que se cumpla una determinada solución.
+
+He optado por la segunda solución.
+
+El script empieza llamando a la función emergente().
+
+La función emergente almacena mediante la función preguntar la respuesta del usuario.
+
+Mediante toLowerCase() transformamos el texto a minúsculas. Sin embargo la variable sigue almacenada intacta tal y como la escribió el usuario.
+
+A continuación utilizamos un if – else.
+
+En caso de cumplirse la condición el script continua del lado del if.
+
+En caso de no cumplirse entra en el lado del else. Escribimos entonces por pantalla mediante document.write()

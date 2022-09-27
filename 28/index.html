@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<h1>Dice las coordenas del mouse</h1>
+<body onmousemove="posicion(event)">
+    <div id="container">
+        <h3>Ratón</h3>
+        <br/>
+        <p>Puntero:[ <span id="puntero"> </span> ]</p>
+    </div>
+</body>
+<script>
+    var elemento = document.getElementById('puntero');
+    var posicion = (event) => {
+        var x = event.clientX;
+        var y = event.clientY;
+
+        elemento.innerHTML = + x + ' ' + y
+    }
+</script>
+<input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</html>

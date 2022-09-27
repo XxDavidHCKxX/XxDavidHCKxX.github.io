@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilos.css">
+    <title>Calculadora</title>
+</head>
+<body>
+    <div class="contenedor">
+        <form action="">
+            <p>I Parcial</p>
+            <input type="text" id="IP">
+            <p>II Parcial</p>
+            <input type="text" id="IIP">
+            <p>III Parcial</p>
+            <input type="text" id="IIIP">
+            <p>IV Parcial</p>
+            <input type="text" id="IVP">
+            <p>Promedio</p>
+            <input type="text" id="resultado" readonly>
+            <input type="button" onclick="promedio()" class="btn" value="Calcular Promedio">
+            <input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+        </form>
+    </div>
+    <script src="promedio.js"></script>
+</body>
+</html>

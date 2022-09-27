@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ejercicio 42</title>
+	<meta charset="utf-8">
+	<meta name="decription" content="Realiza una aplicación que pida al usuario el precio de un producto sin el IVA y el IVA a aplicar, calculando el precio total a pagar.">
+	<h1>Realiza una aplicación que pida al usuario el precio de un producto sin el IVA y el IVA a aplicar, calculando el precio total a pagar.</h1>
+	<script type="text/javascript">
+		var precio=parseInt(prompt("Escribe el precio"));
+		var IVA= parseInt(prompt("Escribe el tipo de IVA"));
+		var resultado= precio+ (precio*IVA)/100;
+		document.writeln("El precio total es "+resultado);
+	</script>
+</head>
+<body>
+	<input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>

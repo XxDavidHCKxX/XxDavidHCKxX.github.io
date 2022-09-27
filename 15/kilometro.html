@@ -1,0 +1,24 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>kilometros A metros</h1>
+    <p> ingrese la cantidad en kilometros</p>
+    <input type="text" id="kilometros">
+    <p>metros</p>
+    <input type="text" id="metros" readonly>
+    <input type="button" onclick="suma()" class="btn" value="RESULTADO">
+    <script>
+        function suma(){
+            var kilometros = parseFloat(document.getElementById('kilometros').value);
+            var metros =  (kilometros / 1000);
+            document.getElementById('metros').value = metros;
+        }
+    </script>
+    <input type="button" onclick="history.back()" name="volver atrás" value="volver atrás">
+</body>
+</html>
