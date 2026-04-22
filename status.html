@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - API Status</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/attack.css">
+</head>
+<body>
+<div class="atk-layout">
+    <nav class="atk-navbar">
+        <a href="index.html" class="atk-navbar-brand">
+            <span class="brand-icon">&#9889;</span>
+            <span class="brand-text">Attack<span>Hub</span></span>
+        </a>
+        <div class="atk-navbar-nav">
+            <a href="dashboard.html" class="atk-nav-link"><span class="nav-icon">&#127968;</span> <span data-i18n="nav_dashboard">Dashboard</span></a>
+            <a href="attack.html" class="atk-nav-link"><span class="nav-icon">&#128163;</span> AttackHub</a>
+            <a href="status.html" class="atk-nav-link active"><span class="nav-icon">&#128225;</span> API Status</a>
+            <a href="profile.html" class="atk-nav-link"><span class="nav-icon">&#128100;</span> <span data-i18n="nav_profile">Profile</span></a>
+            <a href="creator.html" class="atk-nav-link"><span class="nav-icon">&#128081;</span> Creator</a>
+            <a href="admin.html" class="atk-nav-link" id="adminNavLink" style="display:none;"><span class="nav-icon">&#128737;</span> Admin</a>
+        </div>
+        <div class="atk-navbar-right">
+            <button id="langBtn" class="wb-lang-btn" onclick="toggleLang()" title="Switch language" style="background:none;border:1px solid #30363d;color:#c9d1d9;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px;">🌐 EN</button>
+            <div class="atk-navbar-user">
+                <div class="atk-navbar-avatar" id="sidebarUserAvatar">U</div>
+                <span id="sidebarUserName">User</span>
+            </div>
+            <button class="atk-navbar-logout" onclick="logout()">&#128682; <span data-i18n="logout">Logout</span></button>
+        </div>
+    </nav>
+    <main class="atk-main">
+        <div class="atk-content">
+            <h1 class="atk-page-title">API Status</h1>
+            <p class="atk-page-subtitle">Monitor and manage your API connections.</p>
+
+            <!-- Action buttons -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;">
+                <button class="atk-btn-action atk-btn-send" style="padding:8px 18px;font-size:13px;" onclick="loadApiStatus()">&#128260; Check All</button>
+                <button class="atk-btn-action" style="padding:8px 18px;font-size:13px;background:#d97706;" onclick="fixApiPermissions()">&#128295; Fix Permissions</button>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="dash-grid">
+                <div class="dash-card green">
+                    <div class="dash-value" id="statusOnline">-</div>
+                    <div class="dash-label">Online</div>
+                </div>
+                <div class="dash-card red">
+                    <div class="dash-value" id="statusOffline">-</div>
+                    <div class="dash-label">Offline</div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-value" id="statusDisabled" style="color:#64748b;">-</div>
+                    <div class="dash-label">Disabled</div>
+                </div>
+                <div class="dash-card blue">
+                    <div class="dash-value" id="statusMethods">-</div>
+                    <div class="dash-label">Methods</div>
+                </div>
+                <div class="dash-card amber">
+                    <div class="dash-value" id="statusAvgLatency">-</div>
+                    <div class="dash-label">Avg Latency</div>
+                </div>
+                <div class="dash-card purple">
+                    <div class="dash-value" id="statusTotalTx">-</div>
+                    <div class="dash-label">Total TX</div>
+                </div>
+            </div>
+
+            <!-- API Rows -->
+            <div class="atk-tool-card">
+                <div class="atk-tool-header">
+                    <span class="tool-icon">&#128421;</span>
+                    <span class="tool-title">API Server List</span>
+                </div>
+                <div class="atk-tool-desc" id="apiSummaryLabel">Checking all APIs...</div>
+                <div id="apiGrid">
+                    <div style="text-align:center;padding:20px;"><div class="spinner"></div> Querying all APIs...</div>
+                </div>
+            </div>
+
+            <!-- Network Stats -->
+            <div class="atk-tool-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div class="atk-tool-header" style="margin-bottom:0;">
+                        <span class="tool-icon">&#128246;</span>
+                        <span class="tool-title">Network Statistics</span>
+                    </div>
+                    <button class="atk-btn-action atk-btn-send" style="padding:6px 14px;font-size:12px;" onclick="refreshNetStats()">&#128260; Refresh</button>
+                </div>
+                <div class="dash-grid">
+                    <div class="dash-card blue">
+                        <div class="dash-value" id="netTx">-</div>
+                        <div class="dash-label">TX (Upload)</div>
+                    </div>
+                    <div class="dash-card purple">
+                        <div class="dash-value" id="netRx">-</div>
+                        <div class="dash-label">RX (Download)</div>
+                    </div>
+                    <div class="dash-card amber">
+                        <div class="dash-value" id="netProcs">-</div>
+                        <div class="dash-label">Active Processes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Methods -->
+            <div class="atk-tool-card" id="methods">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div>
+                        <div class="atk-tool-header" style="margin-bottom:0;">
+                            <span class="tool-icon">&#128203;</span>
+                            <span class="tool-title">Available Methods</span>
+                        </div>
+                        <div class="atk-tool-desc" style="margin-bottom:0;">Methods loaded from <strong>config.json</strong> + auto-detected from APIs.</div>
+                    </div>
+                    <button class="atk-btn-action atk-btn-send" style="padding:6px 14px;font-size:12px;" onclick="loadAllMethodsList()">&#128260; Refresh</button>
+                </div>
+                <div id="allMethodsContainer">
+                    <div style="color:#64748b;">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/attack-api.js"></script>
+<script src="js/lang.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+    checkAuth();
+    initFirebasePresence();
+    showAdminNavIfNeeded();
+    if (typeof initLang === 'function') initLang();
+    var user = localStorage.getItem('ah_user') || 'Usuario';
+    var sName = $('sidebarUserName'), sAvatar = $('sidebarUserAvatar');
+    if (sName) sName.textContent = user;
+    if (sAvatar) sAvatar.textContent = user.charAt(0).toUpperCase();
+    await loadApiStatus();
+    await refreshNetStats();
+    await loadAllMethodsList();
+});
+
+// ── Load API Status ────────────────────────────────────────────────
+async function loadApiStatus() {
+    var grid = $('apiGrid'); if (!grid) return;
+    grid.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner"></div> Querying all APIs...</div>';
+    try {
+        var results = await AttackApi.GetPerApiStatusAsync();
+        grid.innerHTML = results.map(function (a, idx) { return buildApiRow(a, idx); }).join('');
+        updateSummary(results);
+    } catch (err) {
+        grid.innerHTML = '<div style="color:#ef4444;">Error: ' + esc(err.message) + '</div>';
+    }
+}
+
+function buildApiRow(a, idx) {
+    var statusHtml, statusColor;
+    if (!a.Enabled) { statusHtml = '⛔ Disabled'; statusColor = '#64748b'; }
+    else if (a.Online) { statusHtml = '✅ Online • ' + a.MethodCount + ' methods'; statusColor = '#10b981'; }
+    else { statusHtml = '❌ ' + esc(a.StatusText); statusColor = '#ef4444'; }
+    var pingHtml = (!a.Enabled || !a.Online) ? '🏓 —' : '🏓 ' + a.LatencyMs + 'ms';
+    var pingClr = (!a.Enabled || !a.Online) ? '#64748b' : (a.LatencyMs < 200 ? '#10b981' : (a.LatencyMs < 500 ? '#f59e0b' : '#ef4444'));
+    var txVal = (a.Online && a.TxMbps > 0) ? (a.TxMbps >= 1000 ? (a.TxMbps/1000).toFixed(2)+' Gbps' : a.TxMbps.toFixed(2)+' Mbps') : '0';
+    var rxVal = a.Online ? a.RxMbps.toFixed(2) + ' Mbps' : '0';
+    var procVal = (a.Online && a.RunningProcesses > 0) ? a.RunningProcesses + ' proc' : '0';
+    var methodsLine = '';
+    if (a.Online && a.Methods.length > 0) {
+        methodsLine = '<div style="margin-top:6px;">' + a.Methods.map(function(m){return '<span class="method-tag available" style="font-size:9px;margin:1px;">'+esc(m)+'</span>';}).join(' ') + '</div>';
+    }
+    return '<div class="atk-tool-card" style="margin-bottom:12px;" id="apiRow' + idx + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<div><strong>API ' + idx + '</strong> ' +
+                '<span style="color:' + (a.Enabled ? '#10b981' : '#64748b') + ';font-size:12px;">' + (a.Enabled ? '✅ ON' : '⛔ OFF') + '</span> ' +
+                '<span style="color:' + statusColor + ';font-size:12px;" id="apiStatus' + idx + '">' + statusHtml + '</span>' +
+            '</div>' +
+            '<button class="atk-btn-action" style="padding:4px 12px;font-size:11px;background:#334155;" onclick="checkSingleApi(' + idx + ',this)">🔍 Check</button>' +
+        '</div>' +
+        '<div style="font-size:11px;color:#94a3b8;margin:4px 0;">' + esc(a.Url) + '</div>' +
+        '<div style="display:flex;gap:16px;font-size:12px;">' +
+            '<span style="color:' + pingClr + ';">' + pingHtml + '</span>' +
+            '<span style="color:#f59e0b;">📡 ' + txVal + '</span>' +
+            '<span style="color:#64a5d8;">📥 ' + rxVal + '</span>' +
+            '<span style="color:' + (a.RunningProcesses > 0 ? '#f59e0b' : '#64748b') + ';">⚙ ' + procVal + '</span>' +
+        '</div>' +
+        methodsLine +
+    '</div>';
+}
+
+function updateSummary(results) {
+    var online = 0, offline = 0, disabled = 0, totalLatency = 0, latCount = 0, totalTx = 0;
+    var allMeth = {};
+    results.forEach(function (r) {
+        if (!r.Enabled) disabled++;
+        else if (r.Online) { online++; totalLatency += r.LatencyMs; latCount++; totalTx += r.TxMbps; r.Methods.forEach(function(m){allMeth[m.toUpperCase()]=true;}); }
+        else offline++;
+    });
+    var totalMethods = Object.keys(allMeth).length;
+    var sv = function(id,v){var el=$(id);if(el)el.textContent=v;};
+    sv('statusOnline', online); sv('statusOffline', offline); sv('statusDisabled', disabled);
+    sv('statusMethods', totalMethods);
+    sv('statusAvgLatency', latCount > 0 ? Math.round(totalLatency / latCount) + 'ms' : '—');
+    sv('statusTotalTx', totalTx >= 1000 ? (totalTx/1000).toFixed(2)+' Gbps' : totalTx.toFixed(2)+' Mbps');
+    var elSum = $('apiSummaryLabel');
+    if (elSum) { elSum.textContent = online + '/' + results.length + ' APIs online • ' + totalMethods + ' methods'; elSum.style.color = online > 0 ? '#10b981' : '#ef4444'; }
+}
+
+async function checkSingleApi(index, btn) {
+    if (btn) { btn.disabled = true; btn.textContent = '🔄 ...'; }
+    try {
+        var result = await AttackApi.CheckSingleApiAsync(index);
+        var row = $('apiRow' + index);
+        if (row) row.outerHTML = buildApiRow(result, index);
+    } catch (e) { var st = $('apiStatus' + index); if (st) { st.textContent = '❌ Error'; st.style.color = '#ef4444'; } }
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 Check'; }
+}
+
+// ── Network Stats ──────────────────────────────────────────────────
+async function refreshNetStats() {
+    try {
+        var d = await AttackApi.GetCombinedStatsAsync();
+        var tx = d.TotalTxMbps;
+        $('netTx').textContent = tx >= 1000 ? (tx/1000).toFixed(2)+' Gbps' : tx+' Mbps';
+        $('netRx').textContent = d.TotalRxMbps + ' Mbps';
+        $('netProcs').textContent = d.TotalRunning;
+    } catch (e) { }
+}
+
+// ── Fix Permissions ────────────────────────────────────────────────
+async function fixApiPermissions() {
+    toast('Repairing API permissions...', 'info');
+    try {
+        var res = await AttackApi.FixAllPermissionsAsync();
+        if (res.Fixed > 0) { toast('Fixed ' + res.Fixed + ' server(s). Rechecking...', 'success'); await loadApiStatus(); }
+        else { toast('Could not fix: ' + res.Details, 'error'); }
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+}
+
+// ── All Methods List ───────────────────────────────────────────────
+async function loadAllMethodsList() {
+    var container = $('allMethodsContainer');
+    container.innerHTML = '<div class="spinner"></div> Querying APIs...';
+    try {
+        var results = await AttackApi.GetPerApiStatusAsync();
+        var allL4 = [], allL7 = [], onlineCount = 0;
+        var l7kw = ['GET','POST','HEAD','HTTP','SLOWLORIS','OPTIONS','CF-BYPASS','BROWSER','TLS','RAW','STRESS','HTTPS','XMLRPC'];
+        results.forEach(function (r) {
+            if (r.Online) {
+                onlineCount++;
+                r.Methods.forEach(function (m) {
+                    var u = m.toUpperCase();
+                    if (l7kw.some(function(k){return u.indexOf(k)>=0;})) { if (!allL7.some(function(x){return x.toUpperCase()===u;})) allL7.push(m); }
+                    else { if (!allL4.some(function(x){return x.toUpperCase()===u;})) allL4.push(m); }
+                });
+            }
+        });
+        var html = '<div style="margin-bottom:12px;font-size:12px;color:#94a3b8;">' +
+            '<span style="color:#10b981;">● ' + (allL4.length+allL7.length) + ' methods</span>' +
+            '  <span style="color:#64748b;">● ' + onlineCount + ' API' + (onlineCount!==1?'s':'') + ' online</span></div>';
+        if (allL4.length > 0) html += '<div class="section-label" style="margin-top:8px;">⚡ Layer 4 (' + allL4.length + ')</div><div class="methods-tags">' + allL4.map(function(m){return '<span class="method-tag available">'+esc(m)+' ✓</span>';}).join(' ') + '</div>';
+        if (allL7.length > 0) html += '<div class="section-label" style="margin-top:12px;">🌐 Layer 7 (' + allL7.length + ')</div><div class="methods-tags">' + allL7.map(function(m){return '<span class="method-tag available">'+esc(m)+' ✓</span>';}).join(' ') + '</div>';
+        if (allL4.length===0 && allL7.length===0) html = '<div style="color:#64748b;">No methods detected. Check APIs.</div>';
+        container.innerHTML = html;
+    } catch (err) { container.innerHTML = '<div style="color:#ef4444;">Error: ' + esc(err.message) + '</div>'; }
+}
+</script>
+</body>
+</html>

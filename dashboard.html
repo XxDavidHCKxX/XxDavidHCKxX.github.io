@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/attack.css">
+</head>
+<body>
+<div class="atk-layout">
+
+    <!-- HORIZONTAL NAVBAR -->
+    <nav class="atk-navbar">
+        <a href="index.html" class="atk-navbar-brand">
+            <span class="brand-icon">&#9889;</span>
+            <span class="brand-text">Attack<span>Hub</span></span>
+        </a>
+        <div class="atk-navbar-nav">
+            <a href="dashboard.html" class="atk-nav-link active">
+                <span class="nav-icon">&#127968;</span> <span data-i18n="nav_dashboard">Dashboard</span>
+            </a>
+            <a href="attack.html" class="atk-nav-link">
+                <span class="nav-icon">&#128163;</span> AttackHub
+            </a>
+            <a href="status.html" class="atk-nav-link">
+                <span class="nav-icon">&#128225;</span> API Status
+            </a>
+            <a href="profile.html" class="atk-nav-link">
+                <span class="nav-icon">&#128100;</span> <span data-i18n="nav_profile">Profile</span>
+            </a>
+            <a href="creator.html" class="atk-nav-link">
+                <span class="nav-icon">&#128081;</span> Creator
+            </a>
+            <a href="admin.html" class="atk-nav-link" id="adminNavLink" style="display:none;">
+                <span class="nav-icon">&#128737;</span> Admin
+            </a>
+        </div>
+        <div class="atk-navbar-right">
+            <button id="langBtn" class="wb-lang-btn" onclick="toggleLang()" title="Switch language" style="background:none;border:1px solid #30363d;color:#c9d1d9;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px;">🌐 EN</button>
+            <div class="atk-navbar-user">
+                <div class="atk-navbar-avatar" id="sidebarUserAvatar">U</div>
+                <span id="sidebarUserName">User</span>
+            </div>
+            <button class="atk-navbar-logout" onclick="logout()">&#128682; <span data-i18n="logout">Logout</span></button>
+        </div>
+    </nav>
+
+    <main class="atk-main">
+        <div class="atk-content">
+
+            <h1 class="atk-page-title" data-i18n="dashboard">Dashboard</h1>
+            <p class="atk-page-subtitle" data-i18n="welcome_back">Welcome back, <span id="welcomeUser" style="color:#06b6d4;font-weight:700;">user</span></p>
+
+            <!-- Welcome Banner -->
+            <div class="wb">
+                <div class="wb-header">
+                    <div class="wb-hello">&#128075; <span data-i18n="hello">Hello</span>, <span id="bannerUser">user</span>!</div>
+                </div>
+                <div class="wb-grid">
+                    <div class="wb-card">
+                        <div class="wb-card-icon">&#127760;</div>
+                        <div class="wb-card-label" data-i18n="your_ip">Your IP</div>
+                        <div class="wb-card-value" id="bannerIP">Loading...</div>
+                    </div>
+                    <div class="wb-card">
+                        <div class="wb-card-icon">&#128197;</div>
+                        <div class="wb-card-label" data-i18n="date">Date</div>
+                        <div class="wb-card-value" id="bannerDate">&#8212;</div>
+                    </div>
+                    <div class="wb-card">
+                        <div class="wb-card-icon">&#128338;</div>
+                        <div class="wb-card-label" data-i18n="time">Time</div>
+                        <div class="wb-card-value" id="bannerTime">&#8212;</div>
+                    </div>
+                    <div class="wb-card">
+                        <div class="wb-card-icon">&#128101;</div>
+                        <div class="wb-card-label" data-i18n="online_now">Online Now</div>
+                        <div class="wb-card-value" id="bannerOnline" style="color:#3fb950;">0</div>
+                    </div>
+                </div>
+                <div class="wb-news">
+                    <div class="wb-news-title">&#128227; <span data-i18n="news">News &amp; Updates</span></div>
+                    <div class="wb-news-item">&#9889; <b>AttackHub v2.0</b> — <span data-i18n="news1">New admin panel with Firebase real-time users</span></div>
+                    <div class="wb-news-item">&#128100; <b><span data-i18n="news2_title">User Profiles</span></b> — <span data-i18n="news2">Change name, password, view account details</span></div>
+                    <div class="wb-news-item">&#128737; <b><span data-i18n="news3_title">Admin Tools</span></b> — <span data-i18n="news3">Ban/Unban, Set Plans, Create users</span></div>
+                    <div class="wb-news-item">&#127760; <b><span data-i18n="news4_title">Multi-language</span></b> — <span data-i18n="news4">English and Spanish support</span></div>
+                </div>
+            </div>
+
+            <!-- GLOBAL STATS (right below welcome) -->
+            <div class="dash-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="dash-card purple">
+                    <div class="dash-icon">&#128101;</div>
+                    <div class="dash-value" id="dashUsers">0</div>
+                    <div class="dash-label" data-i18n="users">Users</div>
+                </div>
+                <div class="dash-card green">
+                    <div class="dash-icon">&#128165;</div>
+                    <div class="dash-value" id="dashTotalGlobal">0</div>
+                    <div class="dash-label" data-i18n="total_attacks">Total Attacks</div>
+                </div>
+                <div class="dash-card amber">
+                    <div class="dash-icon">&#9654;</div>
+                    <div class="dash-value" id="dashRunning">0</div>
+                    <div class="dash-label" data-i18n="active_now">Active Now</div>
+                </div>
+                <div class="dash-card blue">
+                    <div class="dash-icon">&#128200;</div>
+                    <div class="dash-value" id="dashToday">0</div>
+                    <div class="dash-label" data-i18n="today">Today</div>
+                </div>
+            </div>
+
+            <!-- SEARCH USERS (all users) -->
+            <div class="adm-groupbox" style="margin-bottom:20px;">
+                <div class="adm-groupbox-title">&#128269; Search Users</div>
+                <div class="adm-search-bar">
+                    <input type="text" id="idxSearchInput" class="adm-textbox" placeholder="Search username..." autocomplete="off" onkeydown="if(event.key==='Enter')idxSearchUser()">
+                    <button class="adm-btn adm-btn-primary" onclick="idxSearchUser()">&#128269; Search</button>
+                </div>
+                <div id="idxSearchResult" style="display:none;margin-top:12px;">
+                    <div class="adm-profile-header">
+                        <div class="adm-profile-avatar" id="idxSrchAvatar">?</div>
+                        <div class="adm-profile-info">
+                            <div class="adm-profile-name" id="idxSrchName">&#8212;</div>
+                            <div class="adm-profile-badges">
+                                <span class="adm-badge" id="idxSrchStatus">&#9679; Offline</span>
+                                <span class="adm-badge adm-badge-role" id="idxSrchRole">User</span>
+                                <span class="adm-badge adm-badge-plan" id="idxSrchPlan">&#11088; Free</span>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="adm-propgrid" style="margin-top:8px;">
+                        <tr><td class="adm-prop-label">&#128100; Username</td><td class="adm-prop-value" id="idxSrchUsername">&#8212;</td></tr>
+                        <tr><td class="adm-prop-label">&#11088; Role</td><td class="adm-prop-value" id="idxSrchRoleVal">&#8212;</td></tr>
+                        <tr><td class="adm-prop-label">&#11088; Plan</td><td class="adm-prop-value" id="idxSrchPlanVal">&#8212;</td></tr>
+                        <tr><td class="adm-prop-label">&#9679; Status</td><td class="adm-prop-value" id="idxSrchOnline">&#8212;</td></tr>
+                        <tr><td class="adm-prop-label">&#128197; Registered</td><td class="adm-prop-value" id="idxSrchCreated">&#8212;</td></tr>
+                        <tr><td class="adm-prop-label">&#128338; Last Seen</td><td class="adm-prop-value" id="idxSrchLastSeen">&#8212;</td></tr>
+                    </table>
+                </div>
+                <div id="idxSearchEmpty" style="display:none;padding:12px 0;text-align:center;color:#f85149;font-size:12px;font-weight:600;">User not found</div>
+            </div>
+
+            <!-- ONLINE USERS -->
+            <div class="adm-groupbox" style="margin-bottom:20px;">
+                <div class="adm-groupbox-title">
+                    <span style="color:#3fb950;">&#9679;</span> <span data-i18n="online_users">Online Users</span>
+                    <span class="adm-groupbox-count" id="idxOnlineBadge">0</span>
+                </div>
+                <div class="adm-listbox" id="idxOnlineList" style="max-height:260px;">
+                    <div class="adm-listbox-empty">Connecting...</div>
+                </div>
+            </div>
+
+                    </div>
+                </main>
+            </div>
+
+<div class="toast-container" id="toasts"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/attack-api.js"></script>
+<script src="js/lang.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    checkAuth();
+    const user = localStorage.getItem('ah_user') || 'usuario';
+
+    document.getElementById('welcomeUser').textContent = user;
+    document.getElementById('bannerUser').textContent = user;
+    document.getElementById('sidebarUserName').textContent = user;
+    document.getElementById('sidebarUserAvatar').textContent = user.charAt(0).toUpperCase();
+
+    // Banner: date/time
+    const now = new Date();
+    document.getElementById('bannerDate').textContent = now.toLocaleDateString('es', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('bannerTime').textContent = now.toLocaleTimeString('es');
+
+    // Banner: public IP
+    fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
+        document.getElementById('bannerIP').textContent = d.ip;
+    }).catch(() => { document.getElementById('bannerIP').textContent = 'Unavailable'; });
+
+    // Firebase presence
+    initFirebasePresence();
+    showAdminNavIfNeeded();
+
+    loadFirebaseStats();
+    initLang();
+
+    try { await initHomePage(); } catch(e) {}
+});
+
+// ── Firebase Stats ─────────────────────────────────────────────────
+function loadFirebaseStats() {
+    try {
+        // Users count
+        fbRef('users').on('value', snap => {
+            const el = document.getElementById('dashUsers');
+            if (el) el.textContent = snap.numChildren();
+        });
+
+        // Online = Active Now
+        // Online count for banner
+        fbRef('presence').on('value', snap => {
+            let online = 0;
+            let html = '';
+            snap.forEach(child => {
+                const p = child.val();
+                if (p && p.online) {
+                    online++;
+                    const name = child.key;
+                    html += '<div class="adm-listbox-item">' +
+                        '<span class="adm-listbox-dot online"></span>' +
+                        '<span class="adm-listbox-name">' + name + '</span>' +
+                        '</div>';
+                }
+            });
+            const el = document.getElementById('dashRunning');
+            if (el) el.textContent = online;
+            const bEl = document.getElementById('bannerOnline');
+            if (bEl) bEl.textContent = online;
+            const badge = document.getElementById('idxOnlineBadge');
+            if (badge) badge.textContent = online;
+            const list = document.getElementById('idxOnlineList');
+            if (list) list.innerHTML = html || '<div class="adm-listbox-empty">No users online</div>';
+        });
+    } catch(e) { console.warn('Stats error:', e); }
+
+    try {
+        const ipH = JSON.parse(localStorage.getItem('ah_ipHistory') || '[]');
+        const urlH = JSON.parse(localStorage.getItem('ah_urlHistory') || '[]');
+        const tEl = document.getElementById('dashTotalGlobal');
+        const dEl = document.getElementById('dashToday');
+        if (tEl) tEl.textContent = ipH.length + urlH.length;
+        const today = new Date().toDateString();
+        let todayCount = 0;
+        ipH.concat(urlH).forEach(e => {
+            if (e.startedAt && new Date(e.startedAt).toDateString() === today) todayCount++;
+        });
+        if (dEl) dEl.textContent = todayCount;
+    } catch(e) {}
+}
+
+// ── Search Users (index page) ──────────────────────────────────────
+function idxSearchUser() {
+    const q = (document.getElementById('idxSearchInput').value || '').trim().toLowerCase();
+    if (!q) return;
+    const resDiv = document.getElementById('idxSearchResult');
+    const emDiv = document.getElementById('idxSearchEmpty');
+    resDiv.style.display = 'none';
+    emDiv.style.display = 'none';
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    const setH = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+
+    fbRef('users/' + q).once('value').then(snap => {
+        if (!snap.exists()) { emDiv.style.display = 'block'; return; }
+        const d = snap.val();
+        resDiv.style.display = 'block';
+        set('idxSrchAvatar', q.charAt(0).toUpperCase());
+        set('idxSrchName', d.displayName || q);
+        set('idxSrchUsername', q);
+        const role = d.role || 'user';
+        const roleEl = document.getElementById('idxSrchRole');
+        if (roleEl) {
+            const roleIcon = role === 'creator' ? '\u2B50 ' : (role === 'admin' ? '\u2605 ' : '');
+            roleEl.textContent = roleIcon + role.charAt(0).toUpperCase() + role.slice(1);
+            roleEl.className = 'adm-badge adm-badge-role' + (role === 'user' ? ' user' : '');
+        }
+        setH('idxSrchRoleVal', role === 'creator'
+            ? '<span style="color:#f59e0b;">\u2B50 Creator</span>'
+            : (role === 'admin'
+                ? '<span style="color:#d29922;">\u2605 Admin</span>'
+                : '<span style="color:#8b949e;">User</span>'));
+        const plan = d.plan || 'Free';
+        set('idxSrchPlan', '\u2B50 ' + plan);
+        setH('idxSrchPlanVal', '<span style="color:#bc8cff;">\u2B50 ' + plan + '</span>');
+        set('idxSrchCreated', d.createdAt ? new Date(d.createdAt).toLocaleString() : '\u2014');
+
+        fbRef('presence/' + q).once('value').then(pSnap => {
+            const p = pSnap.val() || { online: false };
+            const sEl = document.getElementById('idxSrchStatus');
+            if (p.online) {
+                if (sEl) { sEl.textContent = '\u25CF Online'; sEl.className = 'adm-badge adm-badge-online'; }
+                setH('idxSrchOnline', '<span style="color:#3fb950;">\u25CF Online</span>');
+            } else {
+                if (sEl) { sEl.textContent = '\u25CF Offline'; sEl.className = 'adm-badge adm-badge-offline'; }
+                setH('idxSrchOnline', '<span style="color:#484f58;">\u25CF Offline</span>');
+            }
+            set('idxSrchLastSeen', p.lastSeen ? new Date(p.lastSeen).toLocaleString() : '\u2014');
+        });
+    }).catch(() => { emDiv.style.display = 'block'; });
+}
+
+// ── Home page init (dashboard stats from AttackApi) ────────────────
+async function initHomePage() {
+    try {
+        var status = await AttackApi.CheckStatusAsync();
+        var el = $('dashApis'); if (el) el.textContent = status.OnlineCount + '/' + status.TotalApis;
+        var el2 = $('dashMethods'); if (el2) el2.textContent = status.MethodCount;
+    } catch (e) { }
+}
+</script>
+</body>
+</html>

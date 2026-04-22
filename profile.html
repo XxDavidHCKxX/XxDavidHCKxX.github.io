@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Profile</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/attack.css">
+</head>
+<body>
+<div class="atk-layout">
+    <nav class="atk-navbar">
+        <a href="index.html" class="atk-navbar-brand"><span class="brand-icon">&#9889;</span><span class="brand-text">Attack<span>Hub</span></span></a>
+        <div class="atk-navbar-nav">
+            <a href="dashboard.html" class="atk-nav-link"><span class="nav-icon">&#127968;</span> <span data-i18n="nav_dashboard">Dashboard</span></a>
+            <a href="attack.html" class="atk-nav-link"><span class="nav-icon">&#128163;</span> AttackHub</a>
+            <a href="status.html" class="atk-nav-link"><span class="nav-icon">&#128225;</span> API Status</a>
+            <a href="profile.html" class="atk-nav-link active"><span class="nav-icon">&#128100;</span> <span data-i18n="nav_profile">Profile</span></a>
+            <a href="creator.html" class="atk-nav-link"><span class="nav-icon">&#128081;</span> Creator</a>
+            <a href="admin.html" class="atk-nav-link" id="adminNavLink" style="display:none;"><span class="nav-icon">&#128737;</span> Admin</a>
+        </div>
+        <div class="atk-navbar-right">
+            <button id="langBtn" class="wb-lang-btn" onclick="toggleLang()" title="Switch language" style="background:none;border:1px solid #30363d;color:#c9d1d9;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px;">🌐 EN</button>
+            <div class="atk-navbar-user"><div class="atk-navbar-avatar" id="sidebarUserAvatar">U</div><span id="sidebarUserName">User</span></div>
+            <button class="atk-navbar-logout" onclick="logout()">&#128682; <span data-i18n="logout">Logout</span></button>
+        </div>
+    </nav>
+    <main class="atk-main"><div class="atk-content">
+        <h1 class="atk-page-title">&#128100; <span data-i18n="my_profile">My Profile</span></h1>
+        <p class="atk-page-subtitle" data-i18n="profile_sub">Manage your account settings and view your details.</p>
+
+        <!-- Account Details -->
+        <div class="adm-groupbox">
+            <div class="adm-groupbox-title">&#128100; <span data-i18n="account_details">Account Details</span></div>
+            <div class="adm-profile-header">
+                <div style="position:relative;display:inline-block;">
+                    <div class="adm-profile-avatar" id="profAvatar" style="width:64px;height:64px;font-size:28px;cursor:pointer;overflow:hidden;" onclick="document.getElementById('profPhotoInput').click();" title="Click to change photo">?</div>
+                    <button id="profPhotoDeleteBtn" onclick="profDeletePhoto()" style="display:none;position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#f85149;border:2px solid #0d1117;color:#fff;font-size:11px;cursor:pointer;padding:0;line-height:16px;" title="Remove photo">&#10005;</button>
+                </div>
+                <input type="file" id="profPhotoInput" accept="image/*" style="display:none;" onchange="profUploadPhoto(this)">
+                <div class="adm-profile-info">
+                    <div class="adm-profile-name" id="profName">&#8212;</div>
+                    <div class="adm-profile-badges">
+                        <span class="adm-badge" id="profStatus">&#9679; Offline</span>
+                        <span class="adm-badge adm-badge-role" id="profRole">User</span>
+                        <span class="adm-badge adm-badge-plan" id="profPlanBadge">&#11088; Free</span>
+                    </div>
+                </div>
+            </div>
+            <table class="adm-propgrid">
+                <tr><td class="adm-prop-label">&#128100; Username</td><td class="adm-prop-value" id="profUsername">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#11088; Role</td><td class="adm-prop-value" id="profRoleVal">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#11088; Plan</td><td class="adm-prop-value" id="profPlan">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#128197; Registered</td><td class="adm-prop-value" id="profRegistered">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#9679; Status</td><td class="adm-prop-value" id="profOnline">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#9200; Active Time</td><td class="adm-prop-value" id="profActiveTime">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#128338; Last Seen</td><td class="adm-prop-value" id="profLastSeen">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#128202; Total Time</td><td class="adm-prop-value" id="profTotalTime">&#8212;</td></tr>
+                <tr><td class="adm-prop-label">&#127760; IP Address</td><td class="adm-prop-value" id="profIP">&#8212;</td></tr>
+            </table>
+        </div>
+
+        <!-- My Plan -->
+        <div class="adm-groupbox" style="margin-top:14px;">
+            <div class="adm-groupbox-title">&#11088; <span data-i18n="my_plan">My Plan</span></div>
+            <div class="dash-grid" style="grid-template-columns:repeat(3,1fr);gap:8px;">
+                <div class="wb-card"><div class="wb-card-icon">&#11088;</div><div class="wb-card-label">Plan</div><div class="wb-card-value" id="profMyPlanName">&#8212;</div></div>
+                <div class="wb-card"><div class="wb-card-icon">&#9200;</div><div class="wb-card-label" data-i18n="minutes">Minutes</div><div class="wb-card-value" id="profMyPlanTime">&#8212;</div></div>
+                <div class="wb-card"><div class="wb-card-icon">&#128640;</div><div class="wb-card-label">Concurrent</div><div class="wb-card-value" id="profMyPlanConc">&#8212;</div></div>
+            </div>
+        </div>
+
+        <!-- My Sessions -->
+        <div class="adm-groupbox" style="margin-top:14px;">
+            <div class="adm-groupbox-title">&#128203; <span data-i18n="my_sessions">My Sessions</span></div>
+            <div class="adm-sessions-list" id="profSessions" style="max-height:280px;">
+                <div class="adm-sessions-empty">Loading sessions...</div>
+            </div>
+        </div>
+
+        <!-- Change Display Name -->
+        <div class="adm-groupbox" style="margin-top:14px;">
+            <div class="adm-groupbox-title">&#9999; <span data-i18n="change_name">Change Display Name</span></div>
+            <p class="prof-desc" data-i18n="change_name_desc">You can change your username once every <b>30 days</b>. Admins can change anytime.</p>
+            <div class="prof-cooldown" id="profNameCooldown" style="display:none;"></div>
+            <div class="prof-field-row">
+                <input type="text" id="profNewName" class="adm-textbox" placeholder="New username..." maxlength="20" autocomplete="off">
+                <button class="adm-btn adm-btn-primary" id="profNameBtn" onclick="profChangeName()">&#9999; <span data-i18n="change">Change</span></button>
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="adm-groupbox" style="margin-top:14px;">
+            <div class="adm-groupbox-title">&#128274; <span data-i18n="change_password">Change Password</span></div>
+            <div class="prof-field-col">
+                <input type="password" id="profOldPass" class="adm-textbox" placeholder="Current password" autocomplete="off">
+                <input type="password" id="profNewPass" class="adm-textbox" placeholder="New password (min 4 chars)" autocomplete="off">
+                <input type="password" id="profNewPass2" class="adm-textbox" placeholder="Confirm new password" autocomplete="off">
+                <button class="adm-btn adm-btn-primary" onclick="profChangePassword()">&#128274; <span data-i18n="update_password">Update Password</span></button>
+            </div>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="adm-groupbox" style="margin-top:14px;">
+            <div class="adm-groupbox-title">&#128465; <span data-i18n="delete_account">Delete Account</span></div>
+            <p class="prof-desc" data-i18n="delete_desc">This action is permanent and cannot be undone.</p>
+            <div class="prof-field-row">
+                <input type="password" id="profDeletePass" class="adm-textbox" placeholder="Enter password to confirm" autocomplete="off">
+                <button class="adm-btn adm-btn-danger" onclick="profDeleteAccount()">&#128465; <span data-i18n="delete">Delete</span></button>
+            </div>
+        </div>
+
+        <div class="prof-msg prof-msg-error" id="profError" style="display:none;"></div>
+        <div class="prof-msg prof-msg-success" id="profSuccess" style="display:none;"></div>
+
+    </div></main>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/lang.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    const user = localStorage.getItem('ah_user') || 'usuario';
+    document.getElementById('sidebarUserName').textContent = user;
+    document.getElementById('sidebarUserAvatar').textContent = user.charAt(0).toUpperCase();
+    initFirebasePresence();
+    showAdminNavIfNeeded();
+    initProfilePage(user);
+    if (typeof initLang === 'function') initLang();
+});
+</script>
+</body>
+</html>

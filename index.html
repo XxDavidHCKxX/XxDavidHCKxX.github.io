@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub — Advanced Network Attack Platform</title>
+<style>
+/* ── Reset & Base ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ── Announcement Bar ───────────────────────────────────────────── */
+.ann-bar {
+    background: #0e1f2e;
+    border-bottom: 1px solid #1a3a50;
+    text-align: center;
+    padding: 9px 20px;
+    font-size: 13px;
+    color: #7dd3fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.ann-bar .ann-dot {
+    width: 7px; height: 7px;
+    background: #06b6d4;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .5; transform: scale(1.4); }
+}
+.ann-bar a {
+    color: #06b6d4;
+    font-weight: 700;
+    margin: 0 4px;
+    transition: color .2s;
+}
+.ann-bar a:hover { color: #22d3ee; }
+.ann-bar .ann-link {
+    background: #0c3349;
+    border: 1px solid #06b6d4;
+    color: #06b6d4;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 12px;
+    border-radius: 20px;
+    margin-left: 8px;
+    transition: all .2s;
+    cursor: pointer;
+}
+.ann-bar .ann-link:hover { background: #06b6d4; color: #0d1117; }
+
+/* ── Navbar ─────────────────────────────────────────────────────── */
+.hp-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,17,23,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #21262d;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    height: 60px;
+    gap: 32px;
+}
+.hp-nav-brand {
+    font-size: 20px;
+    font-weight: 800;
+    color: #f0f6fc;
+    letter-spacing: -.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.hp-nav-brand .brand-accent { color: #06b6d4; }
+.hp-nav-links {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+    justify-content: center;
+}
+.hp-nav-link {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #8b949e;
+    transition: all .2s;
+    position: relative;
+}
+.hp-nav-link:hover { color: #f0f6fc; background: #21262d; }
+.hp-nav-link.active { color: #f0f6fc; }
+.hp-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%; transform: translateX(-50%);
+    width: 24px; height: 2px;
+    background: #06b6d4;
+    border-radius: 2px;
+}
+.hp-nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.hp-nav-login {
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    background: transparent;
+    cursor: pointer;
+    transition: all .2s;
+}
+.hp-nav-login:hover { background: #21262d; color: #f0f6fc; border-color: #484f58; }
+.hp-nav-cta {
+    padding: 7px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    background: #06b6d4;
+    color: #0d1117;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.hp-nav-cta:hover { background: #0891b2; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(6,182,212,.35); }
+
+/* ── Hero ───────────────────────────────────────────────────────── */
+.hero {
+    min-height: calc(100vh - 93px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px 60px;
+    position: relative;
+    overflow: hidden;
+}
+/* Radial glow background */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 600px;
+    background: radial-gradient(ellipse at center, rgba(6,182,212,.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+/* Grid lines */
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(6,182,212,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6,182,212,.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(6,182,212,.1);
+    border: 1px solid rgba(6,182,212,.3);
+    color: #06b6d4;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+}
+.hero-badge .badge-dot {
+    width: 6px; height: 6px;
+    background: #06b6d4;
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+.hero-title {
+    font-size: clamp(44px, 7vw, 82px);
+    font-weight: 800;
+    color: #f0f6fc;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+    position: relative; z-index: 1;
+}
+.hero-title .accent { color: #06b6d4; }
+.hero-sub {
+    font-size: clamp(15px, 2vw, 19px);
+    color: #8b949e;
+    max-width: 580px;
+    line-height: 1.7;
+    margin: 18px auto 40px;
+    position: relative; z-index: 1;
+}
+.hero-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 30px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    background: #06b6d4;
+    color: #0d1117;
+    border: none;
+    cursor: pointer;
+    transition: all .25s;
+    text-decoration: none;
+}
+.btn-primary:hover {
+    background: #0891b2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(6,182,212,.4);
+    color: #0d1117;
+}
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 30px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    background: transparent;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    cursor: pointer;
+    transition: all .25s;
+    text-decoration: none;
+}
+.btn-secondary:hover {
+    background: #161b22;
+    border-color: #484f58;
+    color: #f0f6fc;
+    transform: translateY(-2px);
+}
+.hero-platforms {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    color: #484f58;
+    font-size: 13px;
+    font-weight: 600;
+    flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+.hero-platforms span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #6e7681;
+    letter-spacing: .3px;
+}
+.hero-platforms span i { font-size: 16px; }
+
+/* ── Stats Bar ──────────────────────────────────────────────────── */
+.stats-section {
+    border-top: 1px solid #21262d;
+    border-bottom: 1px solid #21262d;
+    background: #0d1117;
+    padding: 36px 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    text-align: center;
+}
+.stat-item .stat-val {
+    font-size: 36px;
+    font-weight: 800;
+    color: #f0f6fc;
+    font-variant-numeric: tabular-nums;
+}
+.stat-item .stat-val span { color: #06b6d4; }
+.stat-item .stat-lbl {
+    font-size: 12px;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* ── Features ───────────────────────────────────────────────────── */
+.section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+.section-header {
+    text-align: center;
+    margin-bottom: 56px;
+}
+.section-tag {
+    display: inline-block;
+    background: rgba(6,182,212,.1);
+    border: 1px solid rgba(6,182,212,.25);
+    color: #06b6d4;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+}
+.section-title {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    color: #f0f6fc;
+    letter-spacing: -1px;
+    line-height: 1.15;
+}
+.section-title .accent { color: #06b6d4; }
+.section-desc {
+    font-size: 16px;
+    color: #8b949e;
+    margin-top: 14px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+}
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+.feat-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 12px;
+    padding: 28px;
+    transition: all .25s;
+    position: relative;
+    overflow: hidden;
+}
+.feat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+    opacity: 0;
+    transition: opacity .3s;
+}
+.feat-card:hover { border-color: #30363d; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.4); }
+.feat-card:hover::before { opacity: 1; }
+.feat-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+}
+.feat-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #f0f6fc;
+    margin-bottom: 8px;
+}
+.feat-desc {
+    font-size: 14px;
+    color: #8b949e;
+    line-height: 1.65;
+}
+.feat-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(6,182,212,.1);
+    color: #06b6d4;
+    border: 1px solid rgba(6,182,212,.2);
+    letter-spacing: .3px;
+}
+
+/* ── Plans ──────────────────────────────────────────────────────── */
+.plans-bg { background: #0a0e14; border-top: 1px solid #21262d; border-bottom: 1px solid #21262d; }
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+.plan-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 14px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    transition: all .25s;
+    position: relative;
+}
+.plan-card:hover { border-color: #30363d; transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.plan-card.featured {
+    border-color: #06b6d4;
+    background: linear-gradient(135deg, #0e2030 0%, #161b22 100%);
+    box-shadow: 0 0 0 1px rgba(6,182,212,.2), 0 12px 40px rgba(6,182,212,.1);
+}
+.plan-badge {
+    position: absolute;
+    top: -12px; left: 50%; transform: translateX(-50%);
+    background: #06b6d4;
+    color: #0d1117;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 16px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+.plan-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 12px;
+}
+.plan-price {
+    font-size: 40px;
+    font-weight: 800;
+    color: #f0f6fc;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+}
+.plan-price sup { font-size: 20px; vertical-align: super; color: #8b949e; font-weight: 600; }
+.plan-period { font-size: 13px; color: #8b949e; margin-bottom: 24px; }
+.plan-features { list-style: none; flex: 1; }
+.plan-features li {
+    font-size: 13px;
+    color: #c9d1d9;
+    padding: 7px 0;
+    border-bottom: 1px solid #21262d;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.plan-features li:last-child { border-bottom: none; }
+.plan-features li .check { color: #3fb950; font-size: 14px; flex-shrink: 0; }
+.plan-features li .cross { color: #484f58; font-size: 14px; flex-shrink: 0; }
+.plan-btn {
+    margin-top: 24px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+}
+.plan-btn-outline {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+}
+.plan-btn-outline:hover { background: #21262d; border-color: #484f58; color: #f0f6fc; }
+.plan-btn-fill {
+    background: #06b6d4;
+    border: none;
+    color: #0d1117;
+}
+.plan-btn-fill:hover { background: #0891b2; box-shadow: 0 4px 16px rgba(6,182,212,.35); }
+
+/* ── FAQ ────────────────────────────────────────────────────────── */
+.faq-list { max-width: 720px; margin: 0 auto; }
+.faq-item {
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color .2s;
+}
+.faq-item:hover { border-color: #30363d; }
+.faq-q {
+    width: 100%;
+    background: #161b22;
+    border: none;
+    text-align: left;
+    padding: 18px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #f0f6fc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: background .2s;
+}
+.faq-q:hover { background: #1c2129; }
+.faq-arrow { color: #06b6d4; font-size: 18px; transition: transform .25s; flex-shrink: 0; }
+.faq-item.open .faq-arrow { transform: rotate(45deg); }
+.faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease, padding .3s;
+    background: #0d1117;
+    font-size: 14px;
+    color: #8b949e;
+    line-height: 1.7;
+    padding: 0 22px;
+}
+.faq-item.open .faq-a { max-height: 200px; padding: 16px 22px; }
+
+/* ── CTA Banner ─────────────────────────────────────────────────── */
+.cta-section {
+    background: linear-gradient(135deg, #0c2233 0%, #0d1117 50%, #0c1a20 100%);
+    border-top: 1px solid #1a3a50;
+    border-bottom: 1px solid #1a3a50;
+    text-align: center;
+    padding: 80px 24px;
+    position: relative;
+    overflow: hidden;
+}
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(6,182,212,.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+.cta-title {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    color: #f0f6fc;
+    letter-spacing: -1px;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+}
+.cta-title .accent { color: #06b6d4; }
+.cta-desc {
+    font-size: 16px;
+    color: #8b949e;
+    max-width: 480px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+    position: relative; z-index: 1;
+}
+.cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.footer {
+    background: #0a0e14;
+    border-top: 1px solid #21262d;
+    padding: 48px 40px 28px;
+}
+.footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+@media (max-width: 768px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .hp-nav-links { display: none; }
+    .hero-title { letter-spacing: -1px; }
+    .stats-section { padding: 32px 20px; }
+}
+@media (max-width: 480px) {
+    .footer-top { grid-template-columns: 1fr; }
+    .hp-nav { padding: 0 16px; gap: 12px; }
+}
+.footer-brand-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #f0f6fc;
+    margin-bottom: 10px;
+}
+.footer-brand-name span { color: #06b6d4; }
+.footer-brand-desc { font-size: 13px; color: #6e7681; line-height: 1.6; max-width: 260px; }
+.footer-col-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    margin-bottom: 14px;
+}
+.footer-links { list-style: none; }
+.footer-links li { margin-bottom: 9px; }
+.footer-links li a {
+    font-size: 13px;
+    color: #6e7681;
+    transition: color .2s;
+}
+.footer-links li a:hover { color: #c9d1d9; }
+.footer-bottom {
+    border-top: 1px solid #21262d;
+    padding-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.footer-copy { font-size: 12px; color: #484f58; }
+.footer-copy span { color: #06b6d4; }
+.footer-legal { display: flex; gap: 20px; }
+.footer-legal a { font-size: 12px; color: #484f58; transition: color .2s; }
+.footer-legal a:hover { color: #8b949e; }
+</style>
+</head>
+<body>
+
+<!-- ── Announcement Bar ─────────────────────────────────────────── -->
+<div class="ann-bar">
+    <span class="ann-dot"></span>
+    <strong>AttackHub v2.0</strong> has been released, including the new
+    <a href="login.html">Admin Panel</a> &amp; real-time Firebase monitoring
+    <a class="ann-link" href="login.html">Get Access →</a>
+</div>
+
+<!-- ── Navbar ───────────────────────────────────────────────────── -->
+<nav class="hp-nav">
+    <div class="hp-nav-brand">
+        <span>⚡</span>Attack<span class="brand-accent">Hub</span>
+    </div>
+    <div class="hp-nav-links">
+        <a href="#hero"     class="hp-nav-link active">Home</a>
+        <a href="#features" class="hp-nav-link">Features</a>
+        <a href="#plans"    class="hp-nav-link">Plans</a>
+        <a href="#faq"      class="hp-nav-link">FAQ</a>
+    </div>
+    <div class="hp-nav-right">
+        <a href="login.html" class="hp-nav-login">Client Panel ↗</a>
+        <a href="login.html" class="hp-nav-cta">Get Started</a>
+    </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────── -->
+<section class="hero" id="hero">
+    <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Now Live — AttackHub v2.0
+    </div>
+    <h1 class="hero-title">
+        More Than Just<br>
+        <span class="accent">a Stress Tester</span>
+    </h1>
+    <p class="hero-sub">
+        High-performance Layer 4 &amp; Layer 7 attack platform with real-time
+        monitoring, multi-API support, and a full admin control panel.
+    </p>
+    <div class="hero-actions">
+        <a href="login.html" class="btn-primary">Get Started →</a>
+        <a href="#features"  class="btn-secondary">Learn More</a>
+    </div>
+    <div class="hero-platforms">
+        <span>🖥️ Layer 4</span>
+        <span>🌐 Layer 7</span>
+        <span>⚡ Multi-API</span>
+        <span>📊 Real-Time</span>
+    </div>
+</section>
+
+<!-- ── Stats ─────────────────────────────────────────────────────── -->
+<div class="stats-section">
+    <div class="stat-item">
+        <div class="stat-val" id="statUsers">0</div>
+        <div class="stat-lbl">Registered Users</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-val" id="statOnline">0</div>
+        <div class="stat-lbl">Online Now</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-val">20<span>+</span></div>
+        <div class="stat-lbl">Attack Methods</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-val">99<span>%</span></div>
+        <div class="stat-lbl">Uptime</div>
+    </div>
+</div>
+
+<!-- ── Features ─────────────────────────────────────────────────── -->
+<section class="section" id="features">
+    <div class="section-header">
+        <div class="section-tag">Features</div>
+        <h2 class="section-title">Everything You Need to<br><span class="accent">Dominate the Network</span></h2>
+        <p class="section-desc">Built for power users — real-time dashboards, multi-method attacks, and complete user management.</p>
+    </div>
+    <div class="features-grid">
+        <div class="feat-card">
+            <span class="feat-icon">💥</span>
+            <div class="feat-title">Layer 4 & Layer 7 Attacks</div>
+            <div class="feat-desc">Support for UDP, TCP, HTTP Flood, Slowloris, and more. Multiple methods available per tier with customizable parameters.</div>
+            <span class="feat-tag">20+ Methods</span>
+        </div>
+        <div class="feat-card">
+            <span class="feat-icon">📡</span>
+            <div class="feat-title">Multi-API Support</div>
+            <div class="feat-desc">Connect multiple backend APIs simultaneously. Real-time health monitoring, auto-failover, and load balancing across endpoints.</div>
+            <span class="feat-tag">Real-Time Status</span>
+        </div>
+        <div class="feat-card">
+            <span class="feat-icon">📊</span>
+            <div class="feat-title">Live Dashboard</div>
+            <div class="feat-desc">Monitor active attacks, running sessions, and API status in real time. Full attack history with timestamps and results.</div>
+            <span class="feat-tag">Firebase Powered</span>
+        </div>
+        <div class="feat-card">
+            <span class="feat-icon">🛡️</span>
+            <div class="feat-title">Admin Panel</div>
+            <div class="feat-desc">Full user management: ban, kick, set plans, rename, change passwords, view login history, and manage lockdowns.</div>
+            <span class="feat-tag">Creator Controls</span>
+        </div>
+        <div class="feat-card">
+            <span class="feat-icon">👤</span>
+            <div class="feat-title">User Profiles</div>
+            <div class="feat-desc">Custom avatars, display names, plan badges, and account stats. View your attack history and active session details.</div>
+            <span class="feat-tag">Role System</span>
+        </div>
+        <div class="feat-card">
+            <span class="feat-icon">🌐</span>
+            <div class="feat-title">Multi-Language</div>
+            <div class="feat-desc">Full English and Spanish support across the entire platform. Language toggle available on every page, saved per user.</div>
+            <span class="feat-tag">EN / ES</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── Plans ─────────────────────────────────────────────────────── -->
+<div class="plans-bg" id="plans">
+<section class="section">
+    <div class="section-header">
+        <div class="section-tag">Pricing</div>
+        <h2 class="section-title">Choose Your <span class="accent">Plan</span></h2>
+        <p class="section-desc">All plans include dashboard access, attack history, and profile customization.</p>
+    </div>
+    <div class="plans-grid">
+        <!-- Free -->
+        <div class="plan-card">
+            <div class="plan-name">Free</div>
+            <div class="plan-price"><sup>$</sup>0</div>
+            <div class="plan-period">forever</div>
+            <ul class="plan-features">
+                <li><span class="check">✓</span> Dashboard Access</li>
+                <li><span class="check">✓</span> Basic L4 Methods</li>
+                <li><span class="check">✓</span> Attack History</li>
+                <li><span class="cross">✗</span> L7 Methods</li>
+                <li><span class="cross">✗</span> Extended Time</li>
+                <li><span class="cross">✗</span> Priority Support</li>
+            </ul>
+            <a href="login.html" class="plan-btn plan-btn-outline">Get Started</a>
+        </div>
+        <!-- Basic -->
+        <div class="plan-card">
+            <div class="plan-name">Basic</div>
+            <div class="plan-price"><sup>$</sup>9<span style="font-size:18px;color:#8b949e;">.99</span></div>
+            <div class="plan-period">per month</div>
+            <ul class="plan-features">
+                <li><span class="check">✓</span> Dashboard Access</li>
+                <li><span class="check">✓</span> All L4 Methods</li>
+                <li><span class="check">✓</span> Basic L7 Methods</li>
+                <li><span class="check">✓</span> Attack History</li>
+                <li><span class="cross">✗</span> Extended Time</li>
+                <li><span class="cross">✗</span> Priority Support</li>
+            </ul>
+            <a href="login.html" class="plan-btn plan-btn-outline">Get Basic</a>
+        </div>
+        <!-- Premium (featured) -->
+        <div class="plan-card featured">
+            <div class="plan-badge">MOST POPULAR</div>
+            <div class="plan-name" style="color:#06b6d4;">Premium</div>
+            <div class="plan-price"><sup>$</sup>19<span style="font-size:18px;color:#8b949e;">.99</span></div>
+            <div class="plan-period">per month</div>
+            <ul class="plan-features">
+                <li><span class="check">✓</span> All Methods (L4 + L7)</li>
+                <li><span class="check">✓</span> Extended Attack Time</li>
+                <li><span class="check">✓</span> Multi-API Access</li>
+                <li><span class="check">✓</span> Attack History</li>
+                <li><span class="check">✓</span> Profile Badge</li>
+                <li><span class="check">✓</span> Priority Support</li>
+            </ul>
+            <a href="login.html" class="plan-btn plan-btn-fill">Get Premium →</a>
+        </div>
+        <!-- VIP -->
+        <div class="plan-card">
+            <div class="plan-name">VIP</div>
+            <div class="plan-price"><sup>$</sup>49<span style="font-size:18px;color:#8b949e;">.99</span></div>
+            <div class="plan-period">per month</div>
+            <ul class="plan-features">
+                <li><span class="check">✓</span> Everything in Premium</li>
+                <li><span class="check">✓</span> Unlimited Attack Time</li>
+                <li><span class="check">✓</span> Dedicated Support</li>
+                <li><span class="check">✓</span> VIP Badge + Avatar</li>
+                <li><span class="check">✓</span> Early Feature Access</li>
+                <li><span class="check">✓</span> Custom Concurrency</li>
+            </ul>
+            <a href="login.html" class="plan-btn plan-btn-outline">Get VIP</a>
+        </div>
+    </div>
+</section>
+</div>
+
+<!-- ── FAQ ───────────────────────────────────────────────────────── -->
+<section class="section" id="faq">
+    <div class="section-header">
+        <div class="section-tag">FAQ</div>
+        <h2 class="section-title">Frequently Asked <span class="accent">Questions</span></h2>
+    </div>
+    <div class="faq-list">
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                What is AttackHub?
+                <span class="faq-arrow">+</span>
+            </button>
+            <div class="faq-a">AttackHub is an advanced network stress testing platform supporting Layer 4 and Layer 7 attack methods. It includes a real-time dashboard, multi-API backend support, and a full admin control panel built on Firebase.</div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                How do I get started?
+                <span class="faq-arrow">+</span>
+            </button>
+            <div class="faq-a">Click "Get Started" to create your account. Free accounts get immediate access to basic features. Premium plans unlock all methods and extended attack durations.</div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                What attack methods are supported?
+                <span class="faq-arrow">+</span>
+            </button>
+            <div class="faq-a">We support over 20 methods including UDP Flood, TCP SYN, HTTP Flood, Slowloris, RUDY, and more. Available methods depend on your plan and current API availability.</div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                Can I upgrade or downgrade my plan?
+                <span class="faq-arrow">+</span>
+            </button>
+            <div class="faq-a">Yes. Plans can be changed at any time by contacting an admin. Your plan badge and access level update instantly across all pages.</div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+                Is my data secure?
+                <span class="faq-arrow">+</span>
+            </button>
+            <div class="faq-a">Passwords are hashed with SHA-256 before storage. No plain-text passwords are ever saved. All data is stored in a private Firebase Realtime Database with restricted access rules.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA Banner ────────────────────────────────────────────────── -->
+<div class="cta-section">
+    <h2 class="cta-title">Ready to Get <span class="accent">Started?</span></h2>
+    <p class="cta-desc">Join users already using AttackHub. Create your free account in seconds — no credit card required.</p>
+    <div class="cta-btns">
+        <a href="login.html" class="btn-primary">Create Free Account →</a>
+        <a href="#plans" class="btn-secondary">View Plans</a>
+    </div>
+</div>
+
+<!-- ── Footer ───────────────────────────────────────────────────── -->
+<footer class="footer">
+    <div class="footer-top">
+        <div>
+            <div class="footer-brand-name">⚡ Attack<span>Hub</span></div>
+            <p class="footer-brand-desc">Advanced network stress testing platform with real-time monitoring, multi-method support, and full admin controls.</p>
+        </div>
+        <div>
+            <div class="footer-col-title">Platform</div>
+            <ul class="footer-links">
+                <li><a href="login.html">Dashboard</a></li>
+                <li><a href="login.html">AttackHub</a></li>
+                <li><a href="login.html">API Status</a></li>
+                <li><a href="login.html">Profile</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="footer-col-title">Plans</div>
+            <ul class="footer-links">
+                <li><a href="#plans">Free</a></li>
+                <li><a href="#plans">Basic</a></li>
+                <li><a href="#plans">Premium</a></li>
+                <li><a href="#plans">VIP</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="footer-col-title">Support</div>
+            <ul class="footer-links">
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="footer-copy">© 2025 <span>AttackHub</span>. All rights reserved.</div>
+        <div class="footer-legal">
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+    </div>
+</footer>
+
+<!-- ── Scripts ───────────────────────────────────────────────────── -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+// ── FAQ toggle ───────────────────────────────────────────────────
+function toggleFaq(btn) {
+    var item = btn.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(el) { el.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+}
+
+// ── Active nav link on scroll ────────────────────────────────────
+var sections = ['hero','features','plans','faq'];
+window.addEventListener('scroll', function() {
+    var scrollY = window.scrollY + 80;
+    sections.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var link = document.querySelector('.hp-nav-link[href="#' + id + '"]');
+        if (!link) return;
+        if (scrollY >= el.offsetTop && scrollY < el.offsetTop + el.offsetHeight) {
+            document.querySelectorAll('.hp-nav-link').forEach(function(l) { l.classList.remove('active'); });
+            link.classList.add('active');
+        }
+    });
+}, { passive: true });
+
+// ── Live stats from Firebase ─────────────────────────────────────
+(function() {
+    try {
+        if (typeof fbRef !== 'function') return;
+
+        // Count users
+        fbRef('users').on('value', function(snap) {
+            var el = document.getElementById('statUsers');
+            if (el) el.textContent = snap.numChildren();
+        });
+
+        // Count online
+        fbRef('presence').on('value', function(snap) {
+            var count = 0;
+            snap.forEach(function(child) {
+                if (child.val() && child.val().online) count++;
+            });
+            var el = document.getElementById('statOnline');
+            if (el) el.textContent = count;
+        });
+    } catch(e) {}
+})();
+
+// ── Counter animation on scroll ─────────────────────────────────
+function animateCounter(el, target, suffix) {
+    var start = 0;
+    var duration = 1400;
+    var startTime = null;
+    function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var value = Math.floor(progress * target);
+        el.textContent = value + (suffix || '');
+        if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+var staticStats = [
+    { id: 'statMethods', val: 20, suffix: '+' },
+    { id: 'statUptime', val: 99, suffix: '%' }
+];
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            staticStats.forEach(function(s) {
+                var el = document.getElementById(s.id);
+                if (el) animateCounter(el, s.val, s.suffix);
+            });
+            observer.disconnect();
+        }
+    });
+}, { threshold: 0.3 });
+var statsEl = document.querySelector('.stats-section');
+if (statsEl) observer.observe(statsEl);
+</script>
+</body>
+</html>

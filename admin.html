@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Admin Panel</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/attack.css">
+</head>
+<body>
+<div class="atk-layout">
+    <nav class="atk-navbar">
+        <a href="index.html" class="atk-navbar-brand"><span class="brand-icon">&#9889;</span><span class="brand-text">Attack<span>Hub</span></span></a>
+        <div class="atk-navbar-nav">
+            <a href="dashboard.html" class="atk-nav-link"><span class="nav-icon">&#127968;</span> <span data-i18n="nav_dashboard">Dashboard</span></a>
+            <a href="attack.html" class="atk-nav-link"><span class="nav-icon">&#128163;</span> AttackHub</a>
+            <a href="status.html" class="atk-nav-link"><span class="nav-icon">&#128225;</span> API Status</a>
+            <a href="profile.html" class="atk-nav-link"><span class="nav-icon">&#128100;</span> <span data-i18n="nav_profile">Profile</span></a>
+            <a href="creator.html" class="atk-nav-link"><span class="nav-icon">&#128081;</span> Creator</a>
+            <a href="admin.html" class="atk-nav-link active"><span class="nav-icon">&#128737;</span> Admin</a>
+        </div>
+        <div class="atk-navbar-right">
+            <button id="langBtn" class="wb-lang-btn" onclick="toggleLang()" title="Switch language" style="background:none;border:1px solid #30363d;color:#c9d1d9;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px;">🌐 EN</button>
+            <div class="atk-navbar-user"><div class="atk-navbar-avatar" id="sidebarUserAvatar">U</div><span id="sidebarUserName">User</span></div>
+            <button class="atk-navbar-logout" onclick="logout()">&#128682; <span data-i18n="logout">Logout</span></button>
+        </div>
+    </nav>
+    <main class="atk-main"><div class="atk-content">
+
+        <h1 class="atk-page-title">&#128737; Admin Panel</h1>
+        <p class="atk-page-subtitle">Manage users, roles, plans and monitor activity.</p>
+
+        <!-- Admin Titlebar -->
+        <div class="adm-titlebar" style="margin-bottom:16px;">
+            <span class="adm-titlebar-icon">&#128737;</span>
+            <span class="adm-titlebar-text">Admin Panel</span>
+            <span class="adm-titlebar-badge" id="adminOnlineCount">0 online</span>
+        </div>
+
+        <!-- Create User -->
+        <div class="adm-groupbox" style="margin-bottom:16px;">
+            <div class="adm-groupbox-title">&#10133; <span data-i18n="create_user">Create User</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input type="text" id="adminCreateUser" class="adm-textbox" placeholder="Username" maxlength="20" autocomplete="off" style="flex:1;min-width:140px;">
+                <input type="password" id="adminCreatePass" class="adm-textbox" placeholder="Password" autocomplete="off" style="flex:1;min-width:140px;">
+                <select id="adminCreateRole" class="adm-combobox">
+                    <!-- Options populated by JS based on role -->
+                </select>
+                <select id="adminCreatePlan" class="adm-combobox"><option value="Free">Free</option><option value="Basic">Basic</option><option value="Premium">Premium</option><option value="VIP">VIP</option><option value="Admin">Admin</option></select>
+                <button class="adm-btn adm-btn-success" onclick="adminCreateUser()">&#10133; Create</button>
+            </div>
+            <div id="adminCreateMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <!-- Online Users -->
+        <div class="adm-groupbox" style="margin-bottom:16px;">
+            <div class="adm-groupbox-title">
+                <span style="color:#3fb950;">&#9679;</span> Online Users
+                <span class="adm-groupbox-count" id="adminOnlineBadge">0</span>
+            </div>
+            <div class="adm-listbox" id="adminOnlineList">
+                <div class="adm-listbox-empty">Connecting to Firebase...</div>
+            </div>
+        </div>
+
+        <!-- All Users -->
+        <div class="adm-groupbox" style="margin-bottom:16px;">
+            <div class="adm-groupbox-title">
+                &#128101; All Users
+                <span class="adm-groupbox-count" id="adminTotalUsers">0</span>
+            </div>
+            <div class="adm-datagrid-wrap">
+                <table class="adm-datagrid">
+                    <thead><tr><th>&#128100; USER</th><th>&#11088; ROLE</th><th>&#11088; PLAN</th><th>&#9679; STATUS</th><th>&#128683; BANNED</th><th>&#9881; ACTIONS</th></tr></thead>
+                    <tbody id="adminAllUsersBody">
+                        <tr><td colspan="6" class="adm-datagrid-empty">Loading from Firebase...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Search -->
+        <div class="adm-groupbox" style="margin-bottom:16px;">
+            <div class="adm-groupbox-title">&#128269; User Search</div>
+            <div class="adm-search-bar">
+                <input type="text" id="adminSearchInput" class="adm-textbox" placeholder="Search username..." autocomplete="off" onkeydown="if(event.key==='Enter')adminSearchUser()">
+                <button class="adm-btn adm-btn-primary" onclick="adminSearchUser()">&#128269; Search</button>
+            </div>
+        </div>
+
+        <!-- Search Result: User Profile + Actions combined -->
+        <div id="adminSearchResult" style="display:none;">
+            <div class="adm-groupbox" style="margin-bottom:16px;">
+                <div class="adm-groupbox-title">&#128100; User Profile</div>
+                <div class="adm-profile-header">
+                    <div class="adm-profile-avatar" id="adminResAvatar">?</div>
+                    <div class="adm-profile-info">
+                        <div class="adm-profile-name" id="adminResName">&#8212;</div>
+                        <div class="adm-profile-badges">
+                            <span class="adm-badge" id="adminResStatus">&#9679; Offline</span>
+                            <span class="adm-badge adm-badge-role" id="adminResRole">User</span>
+                        </div>
+                    </div>
+                </div>
+                <table class="adm-propgrid">
+                    <tr><td class="adm-prop-label">&#128100; Username</td><td class="adm-prop-value" id="adminPropName">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#9679; Status</td><td class="adm-prop-value" id="adminPropStatus">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#11088; Role</td><td class="adm-prop-value" id="adminPropRole">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#9200; Active Time</td><td class="adm-prop-value" id="adminResActiveTime">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#11088; Plan</td><td class="adm-prop-value" id="adminResPlan">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#9200; Plan Expires</td><td class="adm-prop-value" id="adminResPlanExpiry">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#128197; Created</td><td class="adm-prop-value" id="adminResCreated">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#128338; Last Seen</td><td class="adm-prop-value" id="adminResLastSeen">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#127760; IP Address</td><td class="adm-prop-value" id="adminResIP">&#8212;</td></tr>
+                    <tr><td class="adm-prop-label">&#128683; Banned</td><td class="adm-prop-value" id="adminResBanned">No</td></tr>
+                    <tr id="adminResLockdownExemptRow" style="display:none;"><td class="adm-prop-label">&#128275; Lockdown Bypass</td><td class="adm-prop-value" id="adminResLockdownExempt">No</td></tr>
+                </table>
+                <!-- Actions inside User Profile -->
+                <div style="margin-top:14px;padding-top:14px;border-top:1px solid #21262d;">
+                    <div style="font-weight:600;font-size:13px;color:#c9d1d9;margin-bottom:10px;">&#9881; Actions</div>
+                    <div class="adm-actions-grid">
+                        <button class="adm-btn adm-btn-danger" id="adminBanBtn" onclick="adminToggleBan()">&#128683; Ban User</button>
+                        <button class="adm-btn adm-btn-success" id="adminUnbanBtn" onclick="adminToggleBan()" style="display:none;">&#9989; Unban User</button>
+                        <button class="adm-btn adm-btn-danger" onclick="adminDeleteUser()" style="background:#7d1a1a;">&#128465; Delete User</button>
+                        <button class="adm-btn" onclick="adminKickUser()" style="background:#d97706;color:#fff;grid-column:1/-1;">&#9889; Kick User from All Devices</button>
+                        <!-- Lockdown Exempt Controls (per-user, creator only) -->
+                        <button class="adm-btn" id="adminLockdownExemptBtn" onclick="adminToggleLockdownExempt()" style="background:#8b5cf6;color:#fff;grid-column:1/-1;display:none;">&#128275; Grant Lockdown Bypass to this User</button>
+                        <!-- Lockdown controls (creator only) -->
+                        <div id="adminUserLockdown" style="grid-column:1/-1;display:none;margin-top:14px;">
+                            <!-- Status indicator -->
+                            <div id="lockdownStatus2" style="display:none;border-radius:8px;padding:12px 16px;margin-bottom:12px;border:1px solid #dc2626;background:linear-gradient(135deg,#1a0a0a,#2d0f0f);"></div>
+                            <!-- Main lockdown box -->
+                            <div style="border:1px solid #30363d;border-radius:10px;background:#0d1117;overflow:hidden;">
+                                <div style="padding:12px 16px;background:#161b22;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:16px;">&#128737;</span>
+                                    <span style="font-weight:700;font-size:13px;color:#c9d1d9;letter-spacing:.5px;">SYSTEM LOCKDOWN</span>
+                                    <span id="lockdownActiveBadge" style="display:none;margin-left:auto;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;">ACTIVE</span>
+                                    <span id="lockdownOffBadge" style="margin-left:auto;background:#21262d;color:#8b949e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;">INACTIVE</span>
+                                </div>
+                                <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                        <button class="adm-btn" id="lockdownBtn2" onclick="adminLockdown()"
+                                            style="background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-weight:700;padding:11px;font-size:13px;border:1px solid #ef4444;border-radius:8px;letter-spacing:.3px;">
+                                            &#128274; LOCKDOWN ALL USERS
+                                        </button>
+                                        <button class="adm-btn" id="unlockBtn2" onclick="adminUnlock()" style="display:none;
+                                            background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;font-weight:700;padding:11px;font-size:13px;border:1px solid #22c55e;border-radius:8px;letter-spacing:.3px;">
+                                            &#128275; UNLOCK ALL USERS
+                                        </button>
+                                    </div>
+                                    <button onclick="adminRemoveAllBypass()"
+                                        style="background:linear-gradient(135deg,#312e81,#7c3aed);color:#fff;font-weight:600;padding:9px;font-size:12px;border:1px solid #8b5cf6;border-radius:8px;cursor:pointer;width:100%;">
+                                        &#128465; Remove Lockdown Bypass from ALL Users
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <select id="adminPlanSelect" class="adm-combobox">
+                        <option value="Free">Free</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Premium">Premium</option>
+                        <option value="VIP">VIP</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                    <select id="adminPlanExpiry" class="adm-combobox" style="min-width:120px;">
+                        <option value="0">No Expiry</option>
+                        <option value="1">1 Day</option>
+                        <option value="3">3 Days</option>
+                        <option value="7">7 Days</option>
+                        <option value="14">14 Days</option>
+                        <option value="30">30 Days</option>
+                        <option value="60">60 Days</option>
+                        <option value="90">90 Days</option>
+                        <option value="365">1 Year</option>
+                    </select>
+                    <button class="adm-btn adm-btn-primary" onclick="adminSetPlan()">&#11088; Set Plan</button>
+                </div>
+                <div id="adminPlanExpiryInfo" style="font-size:11px;color:#8b949e;margin-top:8px;"></div>
+            </div>
+                        <!-- Change Password -->
+                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #21262d;">
+                            <div style="font-weight:600;font-size:13px;color:#c9d1d9;margin-bottom:10px;">&#128274; Change Password</div>
+                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                <input type="password" id="adminNewPass" class="adm-textbox" placeholder="New password (min 4 chars)" autocomplete="off" style="flex:1;min-width:180px;">
+                                <button class="adm-btn adm-btn-primary" onclick="adminChangePassword()">&#128274; Set Password</button>
+                            </div>
+                        </div>
+                        <!-- Edit Username -->
+                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #21262d;">
+                            <div style="font-weight:600;font-size:13px;color:#c9d1d9;margin-bottom:10px;">&#9999; Edit Username</div>
+                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                <input type="text" id="adminNewUsername" class="adm-textbox" placeholder="New username" autocomplete="off" maxlength="20" style="flex:1;min-width:180px;">
+                                <button class="adm-btn adm-btn-primary" onclick="adminChangeUsername()">&#9999; Rename</button>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="adm-groupbox" style="margin-bottom:16px;">
+                <div class="adm-groupbox-title">&#128203; Login / Logout History</div>
+                <div class="adm-sessions-list" id="adminResSessions">
+                    <div class="adm-sessions-empty">No sessions recorded</div>
+                </div>
+            </div>
+        </div>
+
+    </div></main>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/lang.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Set user info immediately to avoid flash
+    const user = localStorage.getItem('ah_user') || 'User';
+    const role = localStorage.getItem('ah_role') || 'user';
+    document.getElementById('sidebarUserName').textContent = user;
+    document.getElementById('sidebarUserAvatar').textContent = user.charAt(0).toUpperCase();
+
+    checkAuth();
+    initFirebasePresence();
+    // Update navbar user from Firebase
+    if (typeof updateNavbarUser === 'function') updateNavbarUser();
+    if (typeof initLang === 'function') initLang();
+
+    // Check role - redirect non-admins/creators
+    function verifyAdmin() {
+        fbRef('users/' + user).once('value').then(snap => {
+            if (!snap.exists() || (snap.val().role !== 'admin' && snap.val().role !== 'creator')) {
+                alert('⛔ Access Denied — You do not have permission to access the Admin Panel.');
+                window.location.href = 'index.html';
+            } else {
+                initAdminPanel();
+            }
+        }).catch(() => {
+            alert('⛔ Access Denied — Could not verify your role.');
+            window.location.href = 'index.html';
+        });
+    }
+
+    if (role === 'admin' || role === 'creator') {
+        initAdminPanel();
+        verifyAdmin();
+    } else {
+        // Hide content immediately for non-admins
+        document.querySelector('.atk-content').style.display = 'none';
+        verifyAdmin();
+    }
+});
+
+// ── Create User (admin page) ──────────────────────────────────────
+async function adminCreateUser() {
+    var username = (document.getElementById('adminCreateUser').value || '').trim().toLowerCase();
+    var pass = document.getElementById('adminCreatePass').value;
+    var role = document.getElementById('adminCreateRole').value;
+    var plan = document.getElementById('adminCreatePlan').value;
+    var msgEl = document.getElementById('adminCreateMsg');
+
+    if (!username || !pass) { showCreateMsg('Fill in username and password.', true); return; }
+    if (username.length < 3) { showCreateMsg('Username must be at least 3 characters.', true); return; }
+    if (!/^[a-z0-9_]+$/.test(username)) { showCreateMsg('Only lowercase letters, numbers, underscore.', true); return; }
+    if (pass.length < 4) { showCreateMsg('Password must be at least 4 characters.', true); return; }
+
+    // Only creator can create admin/creator roles
+    var currentRole = localStorage.getItem('ah_role') || 'user';
+    if ((role === 'admin' || role === 'creator') && currentRole !== 'creator') {
+        showCreateMsg('Only creator can create admin/creator accounts.', true);
+        return;
+    }
+
+    var snap = await fbRef('users/' + username).once('value');
+    if (snap.exists()) { showCreateMsg('Username "' + username + '" already exists.', true); return; }
+
+    var encoder = new TextEncoder();
+    var data = encoder.encode(pass + '_attackhub_salt');
+    var hash = await crypto.subtle.digest('SHA-256', data);
+    var passHash = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    await fbRef('users/' + username).set({
+        username: username,
+        passwordHash: passHash,
+        role: role,
+        plan: plan,
+        banned: false,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+    });
+
+    document.getElementById('adminCreateUser').value = '';
+    document.getElementById('adminCreatePass').value = '';
+    showCreateMsg('User "' + username + '" created!', false);
+}
+
+function showCreateMsg(msg, isError) {
+    var el = document.getElementById('adminCreateMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.color = isError ? '#f85149' : '#3fb950';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+</script>
+</body>
+</html>

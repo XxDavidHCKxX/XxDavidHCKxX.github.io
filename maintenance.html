@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Maintenance</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.maintenance-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0d1117 0%, #1c2128 100%);
+    padding: 20px;
+    text-align: center;
+}
+.maintenance-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+.maintenance-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #f0f6fc;
+    margin-bottom: 10px;
+}
+.maintenance-message {
+    font-size: 16px;
+    color: #8b949e;
+    max-width: 500px;
+    margin-bottom: 30px;
+}
+.maintenance-retry {
+    background: #238636;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.maintenance-retry:hover {
+    background: #2ea043;
+}
+</style>
+</head>
+<body>
+<div class="maintenance-container">
+    <div class="maintenance-icon">&#128274;</div>
+    <div class="maintenance-title">System Maintenance</div>
+    <div class="maintenance-message" id="lockdownMessage">
+        System is currently under maintenance. Please try again later.
+    </div>
+    <button class="maintenance-retry" onclick="checkLockdownStatus()">&#128260; Check Status</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+var msg = localStorage.getItem('ah_lockdown_msg');
+if (msg) document.getElementById('lockdownMessage').textContent = msg;
+
+// If no session at all, go to login (no bucle)
+if (!localStorage.getItem('ah_token') || !localStorage.getItem('ah_user')) {
+    window.location.href = 'login.html';
+}
+
+function checkLockdownStatus() {
+    if (typeof fbRef !== 'function') return;
+    var user = localStorage.getItem('ah_user');
+    var role = localStorage.getItem('ah_role') || 'user';
+
+    // No session → go to login
+    if (!user || !localStorage.getItem('ah_token')) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    Promise.all([
+        fbRef('system/lockdown').once('value'),
+        fbRef('users/' + user + '/lockdownExempt').once('value')
+    ]).then(function(results) {
+        var lockdown = results[0].val();
+        var isExempt = results[1].val() === true;
+
+        if (!lockdown || lockdown.enabled !== true || role === 'creator' || isExempt) {
+            localStorage.removeItem('ah_lockdown_msg');
+            window.location.href = 'dashboard.html';
+        }
+        // else: still locked, stay here — do NOT alert in auto-check
+    }).catch(function() {});
+}
+
+// Auto-check every 10 seconds
+setInterval(checkLockdownStatus, 10000);
+</script>
+</body>
+</html>

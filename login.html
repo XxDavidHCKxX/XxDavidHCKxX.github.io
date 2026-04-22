@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Login</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-body">
+
+<div class="login-container">
+    <div class="login-glow"></div>
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="login-logo-icon">&#9889;</div>
+            <div class="login-logo-text">Attack<span>Hub</span></div>
+        </div>
+
+        <!-- Tabs: Login / Register -->
+        <div class="login-tabs">
+            <button class="login-tab active" id="tabLogin" onclick="switchTab('login')">&#9654; Sign In</button>
+            <button class="login-tab" id="tabRegister" onclick="switchTab('register')">&#128221; Register</button>
+        </div>
+
+        <!-- Error / Success message -->
+        <div class="login-error hidden" id="loginError"></div>
+        <div class="login-success hidden" id="loginSuccess"></div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="login-field">
+                <label for="loginUser">&#128100; Username</label>
+                <input type="text" id="loginUser" placeholder="Your username" autocomplete="username" required autofocus>
+            </div>
+            <div class="login-field">
+                <label for="loginPass">&#128274; Password</label>
+                <div class="login-pass-wrap">
+                    <input type="password" id="loginPass" placeholder="Your password" autocomplete="current-password" required>
+                    <button type="button" class="login-toggle-pass" onclick="togglePass('loginPass')" tabindex="-1">&#128065;</button>
+                </div>
+            </div>
+            <div class="login-field" style="flex-direction:row;align-items:center;gap:8px;">
+                <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:#238636;cursor:pointer;">
+                <label for="rememberMe" style="font-size:13px;color:#8b949e;cursor:pointer;margin:0;">&#128274; Remember me</label>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span id="loginBtnText">&#9654; Sign In</span>
+                <span id="loginBtnSpinner" class="hidden"><span class="spinner"></span> Verifying...</span>
+            </button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" style="display:none;" onsubmit="return handleRegister(event)">
+            <div class="login-field">
+                <label for="regUser">&#128100; Username</label>
+                <input type="text" id="regUser" placeholder="Choose a username" autocomplete="off" required>
+            </div>
+            <div class="login-field">
+                <label for="regPass">&#128274; Password</label>
+                <div class="login-pass-wrap">
+                    <input type="password" id="regPass" placeholder="Choose a password" autocomplete="new-password" required>
+                    <button type="button" class="login-toggle-pass" onclick="togglePass('regPass')" tabindex="-1">&#128065;</button>
+                </div>
+            </div>
+            <div class="login-field">
+                <label for="regPass2">&#128274; Confirm Password</label>
+                <div class="login-pass-wrap">
+                    <input type="password" id="regPass2" placeholder="Confirm your password" autocomplete="new-password" required>
+                    <button type="button" class="login-toggle-pass" onclick="togglePass('regPass2')" tabindex="-1">&#128065;</button>
+                </div>
+            </div>
+            <button type="submit" class="login-btn" id="regBtn" style="background:#238636;">
+                <span id="regBtnText">&#128221; Create Account</span>
+                <span id="regBtnSpinner" class="hidden"><span class="spinner"></span> Creating...</span>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <span>&#128274; Restricted access</span>
+            <span>AttackHub &#169; 2025</span>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+function $(id) { return document.getElementById(id); }
+
+// ── Tab switching ──────────────────────────────────────────────────
+function switchTab(tab) {
+    $('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    $('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+    $('tabLogin').className = 'login-tab' + (tab === 'login' ? ' active' : '');
+    $('tabRegister').className = 'login-tab' + (tab === 'register' ? ' active' : '');
+    hideMessages();
+}
+
+function togglePass(id) {
+    const el = $(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function showError(msg) {
+    const el = $('loginError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    $('loginSuccess').classList.add('hidden');
+    setTimeout(() => el.classList.add('hidden'), 4000);
+}
+
+function showSuccess(msg) {
+    const el = $('loginSuccess');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    $('loginError').classList.add('hidden');
+    setTimeout(() => el.classList.add('hidden'), 4000);
+}
+
+function hideMessages() {
+    $('loginError').classList.add('hidden');
+    $('loginSuccess').classList.add('hidden');
+}
+
+// ── Simple hash for storing passwords in Firebase ──────────────────
+async function simpleHash(str) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str + '_attackhub_salt');
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ── LOGIN (Firebase only) ──────────────────────────────────────────
+async function handleLogin(ev) {
+    ev.preventDefault();
+    const user = $('loginUser').value.trim().toLowerCase();
+    const pass = $('loginPass').value;
+
+    if (!user || !pass) { showError('Fill in username and password.'); return false; }
+
+    $('loginBtnText').classList.add('hidden');
+    $('loginBtnSpinner').classList.remove('hidden');
+    $('loginBtn').disabled = true;
+
+    try {
+        const passHash = await simpleHash(pass);
+        const snap = await fbRef('users/' + user).once('value');
+        if (snap.exists()) {
+            const userData = snap.val();
+            if (userData.banned) {
+                showError('Your account has been banned.');
+                resetLoginBtn();
+                return false;
+            }
+            if (userData.passwordHash === passHash) {
+                // Check if user is already connected (skip if kicked)
+                var presSnap = await fbRef('presence/' + user).once('value');
+                var presData = presSnap.val();
+                var wasKicked = presData && presData.kicked === true;
+
+                if (presData && presData.online === true && !wasKicked) {
+                    showError('⚠ This account is already in use by another session.');
+                    resetLoginBtn();
+                    return false;
+                }
+
+                // Remember me
+                if ($('rememberMe').checked) {
+                    localStorage.setItem('ah_remember', 'true');
+                    localStorage.setItem('ah_saved_user', user);
+                    localStorage.setItem('ah_saved_pass', pass);
+                } else {
+                    localStorage.removeItem('ah_remember');
+                    localStorage.removeItem('ah_saved_user');
+                    localStorage.removeItem('ah_saved_pass');
+                }
+                localStorage.setItem('ah_token', 'fb_' + Date.now());
+                localStorage.setItem('ah_user', user);
+                // Check plan expiration
+                var userPlan = userData.plan || 'Free';
+                if (userData.planExpiresAt && typeof userData.planExpiresAt === 'number' && Date.now() > userData.planExpiresAt) {
+                    userPlan = 'Free';
+                    fbRef('users/' + user).update({ plan: 'Free', planExpiresAt: null });
+                }
+                localStorage.setItem('ah_plan', userPlan);
+                localStorage.setItem('ah_role', userData.role || 'user');
+                fbSetOnline(user);
+                // Clear kicked flag if exists
+                fbRef('presence/' + user).update({ kicked: null });
+                fbLogLogin(user);
+                window.location.href = 'login.html';
+                return false;
+            } else {
+                showError('Invalid password.');
+                resetLoginBtn();
+                return false;
+            }
+        } else {
+            showError('User not found. Register first.');
+            resetLoginBtn();
+            return false;
+        }
+    } catch(err) {
+        showError('Connection error: ' + err.message);
+        resetLoginBtn();
+    }
+    return false;
+}
+
+// ── REGISTER ───────────────────────────────────────────────────────
+async function handleRegister(ev) {
+    ev.preventDefault();
+    const user = $('regUser').value.trim().toLowerCase();
+    const pass = $('regPass').value;
+    const pass2 = $('regPass2').value;
+
+    if (!user || !pass || !pass2) { showError('Fill in all fields.'); return false; }
+    if (user.length < 3) { showError('Username must be at least 3 characters.'); return false; }
+    if (user.length > 20) { showError('Username must be max 20 characters.'); return false; }
+    if (!/^[a-z0-9_]+$/.test(user)) { showError('Username: only lowercase letters, numbers, underscore.'); return false; }
+    if (pass.length < 4) { showError('Password must be at least 4 characters.'); return false; }
+    if (pass !== pass2) { showError('Passwords do not match.'); return false; }
+
+    $('regBtnText').classList.add('hidden');
+    $('regBtnSpinner').classList.remove('hidden');
+    $('regBtn').disabled = true;
+
+    try {
+        // Check if username exists
+        const snap = await fbRef('users/' + user).once('value');
+        if (snap.exists()) {
+            showError('Username "' + user + '" is already taken.');
+            resetRegBtn();
+            return false;
+        }
+
+        // Create user in Firebase
+        const passHash = await simpleHash(pass);
+        await fbRef('users/' + user).set({
+            username: user,
+            passwordHash: passHash,
+            role: 'user',
+            plan: 'Free',
+            banned: false,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        showSuccess('Account created! You can now sign in.');
+        switchTab('login');
+        $('loginUser').value = user;
+        $('loginPass').value = '';
+        $('loginPass').focus();
+        resetRegBtn();
+    } catch(err) {
+        showError('Error: ' + err.message);
+        resetRegBtn();
+    }
+    return false;
+}
+
+function resetLoginBtn() {
+    $('loginBtnText').classList.remove('hidden');
+    $('loginBtnSpinner').classList.add('hidden');
+    $('loginBtn').disabled = false;
+}
+
+function resetRegBtn() {
+    $('regBtnText').classList.remove('hidden');
+    $('regBtnSpinner').classList.add('hidden');
+    $('regBtn').disabled = false;
+}
+
+// Load saved credentials if Remember Me was checked
+(function() {
+    if (localStorage.getItem('ah_remember') === 'true') {
+        var savedUser = localStorage.getItem('ah_saved_user');
+        var savedPass = localStorage.getItem('ah_saved_pass');
+        if (savedUser) $('loginUser').value = savedUser;
+        if (savedPass) $('loginPass').value = savedPass;
+        $('rememberMe').checked = true;
+    }
+})();
+
+// If already logged in, redirect — require BOTH token AND user to avoid loop
+if (localStorage.getItem('ah_token') && localStorage.getItem('ah_user')) {
+    window.location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>

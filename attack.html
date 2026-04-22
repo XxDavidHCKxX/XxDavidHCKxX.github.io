@@ -1,0 +1,520 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Tools</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/attack.css">
+</head>
+<body>
+<div class="atk-layout">
+    <nav class="atk-navbar">
+        <a href="index.html" class="atk-navbar-brand">
+            <span class="brand-icon">&#9889;</span>
+            <span class="brand-text">Attack<span>Hub</span></span>
+        </a>
+        <div class="atk-navbar-nav">
+            <a href="dashboard.html" class="atk-nav-link"><span class="nav-icon">&#127968;</span> <span data-i18n="nav_dashboard">Dashboard</span></a>
+            <a href="attack.html" class="atk-nav-link active"><span class="nav-icon">&#128163;</span> AttackHub</a>
+            <a href="status.html" class="atk-nav-link"><span class="nav-icon">&#128225;</span> API Status</a>
+            <a href="profile.html" class="atk-nav-link"><span class="nav-icon">&#128100;</span> <span data-i18n="nav_profile">Profile</span></a>
+            <a href="creator.html" class="atk-nav-link"><span class="nav-icon">&#128081;</span> Creator</a>
+            <a href="admin.html" class="atk-nav-link" id="adminNavLink" style="display:none;"><span class="nav-icon">&#128737;</span> Admin</a>
+        </div>
+        <div class="atk-navbar-right">
+            <button id="langBtn" class="wb-lang-btn" onclick="toggleLang()" title="Switch language" style="background:none;border:1px solid #30363d;color:#c9d1d9;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px;">🌐 EN</button>
+            <div class="atk-navbar-user">
+                <div class="atk-navbar-avatar" id="sidebarUserAvatar">U</div>
+                <span id="sidebarUserName">User</span>
+            </div>
+            <button class="atk-navbar-logout" onclick="logout()">&#128682; <span data-i18n="logout">Logout</span></button>
+        </div>
+    </nav>
+    <main class="atk-main">
+        <div class="atk-content">
+            <h1 class="atk-page-title">Tools</h1>
+            <p class="atk-page-subtitle">Network analysis and stress testing tools.</p>
+            <div class="atk-stats-bar">
+                <div class="stat-item"><span style="color:#38bdf8;" id="statL4">&#9889; L4: 0</span></div>
+                <div class="stat-item"><span style="color:#a855f7;" id="statL7">&#127760; L7: 0</span></div>
+                <div class="stat-item"><span style="color:#10b981;" id="statTotal">&#128202; Total: 0</span></div>
+                <div class="stat-item"><span style="color:#64748b;" id="statMbps">&#128246; &#8212; Mbps</span></div>
+                <div class="stat-item"><span style="color:#3b82f6;" id="statPlan">&#11088; &#8212;</span></div>
+            </div>
+            <div class="atk-pill-tabs">
+                <button class="atk-pill-tab active" data-mode="ip" onclick="switchAttackTab('ip'); switchMode('ip');">
+                    <span class="pill-icon">&#9889;</span> Layer 4 (IP)
+                </button>
+                <button class="atk-pill-tab" data-mode="url" onclick="switchAttackTab('url'); switchMode('url');">
+                    <span class="pill-icon">&#128269;</span> Layer 7 (URL)
+                </button>
+            </div>
+            <div class="atk-tool-card" id="ipSection">
+                <div class="atk-tool-header">
+                    <span class="tool-icon" id="toolIcon">&#9889;</span>
+                    <span class="tool-title" id="toolTitle">Layer 4 Attack</span>
+                </div>
+                <div class="atk-tool-desc" id="toolDesc">Send network stress tests to an IP address using L4 protocols.</div>
+                <div class="atk-input-row">
+                    <div class="atk-input-group atk-input-host">
+                        <label>IP ADDRESS</label>
+                        <input type="text" id="ipHost" placeholder="Enter IP address (e.g., 1.1.1.1)" oninput="validateIp()">
+                        <div class="atk-input-indicator" id="ipIndicator">Ej: 1.1.1.1</div>
+                    </div>
+                    <div class="atk-input-group atk-input-port">
+                        <label>PORT</label>
+                        <input type="number" id="ipPort" value="80" min="1" max="65535" step="1" onchange="clampPort(this)" onkeydown="blockInvalidNum(event)">
+                    </div>
+                    <div class="atk-input-group atk-input-time">
+                        <label>TIME (sec)</label>
+                        <input type="number" id="ipTime" value="60" min="1" step="1" onchange="clampTime(this)" onkeydown="blockInvalidNum(event)">
+                        <div class="atk-input-indicator" id="ipTimeIndicator"></div>
+                    </div>
+                </div>
+                <div class="atk-methods-row">
+                    <div class="atk-input-group">
+                        <label>METHOD</label>
+                        <select id="ipMethods"></select>
+                    </div>
+                    <span class="atk-methods-status" id="ipMethodsStatus">Cargando...</span>
+                </div>
+                <div class="atk-btn-row">
+                    <button class="atk-btn-action atk-btn-send" id="btnIpSend" onclick="sendIpAttack()">&#128269; Send Attack</button>
+                    <button class="atk-btn-action atk-btn-stop" id="btnIpStop" onclick="stopIpAttack()">&#9632; Stop</button>
+                    <button class="atk-btn-action atk-btn-ping" onclick="pingIp()">&#9889; Ping</button>
+                </div>
+            </div>
+            <div class="atk-tool-card" id="urlSection" style="display:none;">
+                <div class="atk-tool-header">
+                    <span class="tool-icon">&#127760;</span>
+                    <span class="tool-title">Layer 7 Attack</span>
+                </div>
+                <div class="atk-tool-desc">Send HTTP-based stress tests to a URL target.</div>
+                <div class="atk-input-row">
+                    <div class="atk-input-group atk-input-host">
+                        <label>TARGET URL</label>
+                        <input type="text" id="urlHost" placeholder="Enter URL (e.g., https://example.com)" oninput="validateUrl()">
+                        <div class="atk-input-indicator" id="urlIndicator">Ej: https://www.google.com</div>
+                    </div>
+                    <div class="atk-input-group atk-input-port">
+                        <label>PORT</label>
+                        <input type="number" id="urlPort" value="443" min="1" max="65535" step="1" onchange="clampPort(this)" onkeydown="blockInvalidNum(event)">
+                    </div>
+                    <div class="atk-input-group atk-input-time">
+                        <label>TIME (sec)</label>
+                        <input type="number" id="urlTime" value="300" min="1" step="1" onchange="clampTime(this)" onkeydown="blockInvalidNum(event)">
+                        <div class="atk-input-indicator" id="urlTimeIndicator"></div>
+                    </div>
+                </div>
+                <div class="atk-methods-row">
+                    <div class="atk-input-group">
+                        <label>METHOD</label>
+                        <select id="urlMethods"></select>
+                    </div>
+                    <span class="atk-methods-status" id="urlMethodsStatus">Cargando...</span>
+                </div>
+                <div class="atk-btn-row">
+                    <button class="atk-btn-action atk-btn-send" id="btnUrlSend" onclick="sendUrlAttack()">&#128269; Send Attack</button>
+                    <button class="atk-btn-action atk-btn-stop" id="btnUrlStop" onclick="stopUrlAttack()">&#9632; Stop</button>
+                    <button class="atk-btn-action atk-btn-open" onclick="openUrl()">&#127760; Open URL</button>
+                </div>
+            </div>
+            <div class="atk-results-card" id="ipHistoryCard">
+                <div class="atk-history-header">
+                    <span class="atk-history-title">Attack History &#8212; L4</span>
+                    <button class="atk-filter-btn active" onclick="filterIp('all', this)">All</button>
+                    <button class="atk-filter-btn" onclick="filterIp('running', this)">Running</button>
+                    <button class="atk-filter-btn" onclick="filterIp('done', this)">Finished</button>
+                    <div class="atk-history-actions">
+                        <button class="atk-btn-sm blue" onclick="repeatIp()">&#128257; Repeat</button>
+                        <button class="atk-btn-sm red" onclick="deleteIp()">&#128465; Delete</button>
+                        <button class="atk-btn-sm blue" onclick="saveAllIps()">&#128190; Save IPs</button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr>
+                            <th>IP</th><th>PORT</th><th>METHOD</th><th>DURATION</th>
+                            <th>STARTED</th><th>REMAINING</th><th>PROGRESS</th><th>STATUS</th>
+                        </tr></thead>
+                        <tbody id="ipHistoryBody"></tbody>
+                    </table>
+                </div>
+                <div class="atk-results-empty" id="ipEmptyState">
+                    <div class="empty-icon">&#9889;</div>
+                    <div class="empty-title">No results yet</div>
+                    <div class="empty-desc">Enter an IP address and click Send Attack to see results.</div>
+                </div>
+            </div>
+            <div class="atk-results-card" id="urlHistoryCard" style="display:none;">
+                <div class="atk-history-header">
+                    <span class="atk-history-title">Attack History &#8212; L7</span>
+                    <button class="atk-filter-btn active" onclick="filterUrl('all', this)">All</button>
+                    <button class="atk-filter-btn" onclick="filterUrl('running', this)">Running</button>
+                    <button class="atk-filter-btn" onclick="filterUrl('done', this)">Finished</button>
+                    <div class="atk-history-actions">
+                        <button class="atk-btn-sm blue" onclick="repeatUrl()">&#128257; Repeat</button>
+                        <button class="atk-btn-sm red" onclick="deleteUrl()">&#128465; Delete</button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr>
+                            <th>URL / DOMAIN</th><th>PORT</th><th>METHOD</th><th>DURATION</th>
+                            <th>STARTED</th><th>REMAINING</th><th>PROGRESS</th><th>STATUS</th>
+                        </tr></thead>
+                        <tbody id="urlHistoryBody"></tbody>
+                    </table>
+                </div>
+                <div class="atk-results-empty" id="urlEmptyState">
+                    <div class="empty-icon">&#127760;</div>
+                    <div class="empty-title">No results yet</div>
+                    <div class="empty-desc">Enter a URL and click Send Attack to see results.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="toast-container" id="toasts"></div>
+<div class="context-menu" id="ctxMenu">
+    <div class="context-menu-item" onclick="ctxCopyTarget()">&#128203; Copy IP/URL</div>
+    <div class="context-menu-item" onclick="ctxRepeat()">&#128257; Repeat Attack</div>
+    <div class="context-menu-item" onclick="ctxDelete()">&#128465; Delete</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/attack-api.js"></script>
+<script src="js/attack.js"></script>
+<script src="js/lang.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────────────
+var currentMode = 'ip';
+var ipHistory = [], urlHistory = [];
+var ipSelectedIdx = -1, urlSelectedIdx = -1;
+var ctxIdx = -1, ctxMode = 'ip';
+var stats = { ipStarted: 0, urlStarted: 0 };
+var appConfig = { plan: { name: 'Free', maxTime: 300, maxConcurrent: 2 } };
+var CONFIG_METHODS_L4 = ["UDP","TCP","SYN","ACK","GRE","ICMP","DNS","NTP","SSDP","CHARGEN","MEMCACHED","ARD","CLDAP","RDP","VSE","OVH-TCP","OVH-UDP","GAME","FIVEM","TS3"];
+var CONFIG_METHODS_L7 = ["GET","POST","HEAD","HTTP-FLOOD","SLOWLORIS","OPTIONS","CF-BYPASS","BROWSER","TLS","RAW","STRESS"];
+
+function getMaxTime() { return appConfig.plan.maxTime || 300; }
+function getMaxConcurrent() { return appConfig.plan.maxConcurrent || 2; }
+function countRunningAttacks() {
+    return ipHistory.filter(function(e){return e.status==='En curso';}).length + urlHistory.filter(function(e){return e.status==='En curso';}).length;
+}
+
+// ── Validation ─────────────────────────────────────────────────────
+function validateIp() {
+    var el = $('ipIndicator'); if (!el) return;
+    var v = $('ipHost').value.trim();
+    if (!v) { el.textContent = 'Ej: 1.1.1.1'; el.style.color = ''; return; }
+    var r = classifyIp(v);
+    el.textContent = r.label; el.style.color = r.color;
+}
+function validateUrl() {
+    var el = $('urlIndicator'); if (!el) return;
+    var v = $('urlHost').value.trim();
+    if (!v) { el.textContent = 'Ej: https://www.google.com'; el.style.color = ''; return; }
+    var d = parseUrlDomain(v);
+    if (d) { el.textContent = '✔ ' + d; el.style.color = '#10b981'; }
+    else { el.textContent = 'URL inválida'; el.style.color = '#ef4444'; }
+}
+
+function switchMode(mode) { currentMode = mode; }
+
+// ── Load methods from AttackApi ────────────────────────────────────
+async function loadAllMethods() {
+    setMethodsStatus('ip', 'Querying APIs...', '');
+    setMethodsStatus('url', 'Querying APIs...', '');
+    try {
+        var methods = await AttackApi.GetAvailableMethodsAsync(true);
+        if (methods.length === 0) {
+            populateSelect('ipMethods', CONFIG_METHODS_L4);
+            populateSelect('urlMethods', CONFIG_METHODS_L7);
+            setMethodsStatus('ip', '⚠ ' + CONFIG_METHODS_L4.length + ' (fallback)', 'ok');
+            setMethodsStatus('url', '⚠ ' + CONFIG_METHODS_L7.length + ' (fallback)', 'ok');
+            return;
+        }
+        var l7kw = ['GET','POST','HEAD','HTTP','SLOWLORIS','OPTIONS','CF-BYPASS','BROWSER','TLS','RAW','STRESS','HTTPS','XMLRPC'];
+        var l4 = [], l7 = [];
+        methods.forEach(function(m) {
+            var u = m.toUpperCase();
+            if (l7kw.some(function(k){return u.indexOf(k)>=0;})) l7.push(m); else l4.push(m);
+        });
+        if (l4.length > 0) { populateSelect('ipMethods', l4); setMethodsStatus('ip', '✔ ' + l4.length + ' methods', 'ok'); }
+        else { populateSelect('ipMethods', CONFIG_METHODS_L4); setMethodsStatus('ip', '⚠ fallback', 'ok'); }
+        if (l7.length > 0) { populateSelect('urlMethods', l7); setMethodsStatus('url', '✔ ' + l7.length + ' methods', 'ok'); }
+        else { populateSelect('urlMethods', CONFIG_METHODS_L7); setMethodsStatus('url', '⚠ fallback', 'ok'); }
+    } catch (e) {
+        populateSelect('ipMethods', CONFIG_METHODS_L4);
+        populateSelect('urlMethods', CONFIG_METHODS_L7);
+        setMethodsStatus('ip', '⚠ fallback', 'ok');
+        setMethodsStatus('url', '⚠ fallback', 'ok');
+    }
+}
+
+// ── Send IP Attack ─────────────────────────────────────────────────
+async function sendIpAttack() {
+    var host = $('ipHost').value.trim(), port = $('ipPort').value.trim(), time = $('ipTime').value.trim(), method = $('ipMethods').value;
+    if (!host || !port || !time) { toast('Complete IP, PORT and TIME.', 'error'); return; }
+    if (!isValidIp(host)) { toast('Invalid IP.', 'error'); return; }
+    var portNum = parseInt(port); if (isNaN(portNum) || portNum < 1 || portNum > 65535) { toast('PORT 1-65535.', 'error'); return; }
+    var sec = parseInt(time); if (isNaN(sec) || sec <= 0) { toast('TIME > 0.', 'error'); return; }
+    if (sec > getMaxTime()) { toast('Max ' + formatSec(getMaxTime()) + '.', 'error'); return; }
+    if (countRunningAttacks() >= getMaxConcurrent()) { toast('Max ' + getMaxConcurrent() + ' concurrent.', 'error'); return; }
+    if (!method) { toast('Select a method.', 'error'); return; }
+    if (ipHistory.some(function(e){return e.status==='En curso' && e.host===host;})) { toast('Already running: ' + host, 'error'); return; }
+
+    var btn = $('btnIpSend'); if (btn) btn.disabled = true;
+    try {
+        var res = await AttackApi.SendAttackAsync(host, port, time, method);
+        if (!res.Success) { toast(res.Message, 'error'); if (btn) btn.disabled = false; return; }
+        var now = new Date();
+        ipHistory.push({ host: host, port: portNum, time: sec, method: method, status: 'En curso', startedAt: now.toISOString(), endsAt: new Date(now.getTime() + sec * 1000).toISOString() });
+        stats.ipStarted++; saveLocal(); renderIpHistory();
+        toast('✅ Attack sent: ' + host + ':' + portNum + ' (' + method + ') ' + formatSec(sec), 'success');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+    if (btn) btn.disabled = false;
+}
+
+// ── Stop IP Attack ─────────────────────────────────────────────────
+async function stopIpAttack() {
+    if (ipSelectedIdx < 0 || ipSelectedIdx >= ipHistory.length) { toast('Select an attack.', 'error'); return; }
+    var entry = ipHistory[ipSelectedIdx];
+    if (entry.status !== 'En curso') { toast('Not running.', 'error'); return; }
+    var btn = $('btnIpStop'); if (btn) btn.disabled = true;
+    try {
+        await AttackApi.StopAttackAsync(entry.host, entry.method);
+        entry.status = 'Detenido'; entry.endsAt = new Date().toISOString();
+        renderIpHistory(); saveLocal(); toast('⏹ Stopped: ' + entry.host, 'info');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+    if (btn) btn.disabled = false;
+}
+
+// ── Send URL Attack ────────────────────────────────────────────────
+async function sendUrlAttack() {
+    var urlInput = $('urlHost').value.trim(), port = $('urlPort').value.trim(), time = $('urlTime').value.trim(), method = $('urlMethods').value;
+    if (!urlInput || !port || !time) { toast('Complete URL, PORT and TIME.', 'error'); return; }
+    var domain = parseUrlDomain(urlInput); if (!domain) { toast('Invalid URL.', 'error'); return; }
+    var portNum = parseInt(port); if (isNaN(portNum) || portNum < 1 || portNum > 65535) { toast('PORT 1-65535.', 'error'); return; }
+    var sec = parseInt(time); if (isNaN(sec) || sec <= 0) { toast('TIME > 0.', 'error'); return; }
+    if (sec > getMaxTime()) { toast('Max ' + formatSec(getMaxTime()) + '.', 'error'); return; }
+    if (countRunningAttacks() >= getMaxConcurrent()) { toast('Max ' + getMaxConcurrent() + ' concurrent.', 'error'); return; }
+    if (!method) { toast('Select a method.', 'error'); return; }
+    if (urlHistory.some(function(e){return e.status==='En curso' && e.domain===domain;})) { toast('Already running: ' + domain, 'error'); return; }
+
+    var btn = $('btnUrlSend'); if (btn) btn.disabled = true;
+    try {
+        var res = await AttackApi.SendAttackAsync(domain, port, time, method);
+        if (!res.Success) { toast(res.Message, 'error'); if (btn) btn.disabled = false; return; }
+        var fullUrl = urlInput; if (!/^https?:\/\//i.test(fullUrl)) fullUrl = 'https://' + fullUrl;
+        var now = new Date();
+        urlHistory.push({ url: fullUrl, domain: domain, port: portNum, time: sec, method: method, status: 'En curso', startedAt: now.toISOString(), endsAt: new Date(now.getTime() + sec * 1000).toISOString() });
+        stats.urlStarted++; saveLocal(); renderUrlHistory();
+        toast('✅ Attack sent: ' + domain + ':' + portNum + ' (' + method + ') ' + formatSec(sec), 'success');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+    if (btn) btn.disabled = false;
+}
+
+// ── Stop URL Attack ────────────────────────────────────────────────
+async function stopUrlAttack() {
+    if (urlSelectedIdx < 0 || urlSelectedIdx >= urlHistory.length) { toast('Select an attack.', 'error'); return; }
+    var entry = urlHistory[urlSelectedIdx];
+    if (entry.status !== 'En curso') { toast('Not running.', 'error'); return; }
+    var btn = $('btnUrlStop'); if (btn) btn.disabled = true;
+    try {
+        await AttackApi.StopAttackAsync(entry.domain, entry.method);
+        entry.status = 'Detenido'; entry.endsAt = new Date().toISOString();
+        renderUrlHistory(); saveLocal(); toast('⏹ Stopped: ' + entry.domain, 'info');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+    if (btn) btn.disabled = false;
+}
+
+function pingIp() { var h = $('ipHost').value.trim(); if (h) window.open('https://ping.pe/' + enc(h), '_blank'); }
+function openUrl() { var u = $('urlHost').value.trim(); if (u) { if (!/^https?:\/\//i.test(u)) u = 'https://' + u; window.open(u, '_blank'); } }
+
+// ── History rendering ──────────────────────────────────────────────
+function renderIpHistory() {
+    var body = $('ipHistoryBody'); if (!body) return;
+    body.innerHTML = '';
+    ipHistory.forEach(function (e, i) {
+        var now = new Date();
+        var ends = new Date(e.endsAt);
+        var remaining = e.status === 'En curso' ? Math.max(0, Math.round((ends - now) / 1000)) : 0;
+        if (e.status === 'En curso' && remaining <= 0) { e.status = 'Finalizado'; saveLocal(); }
+        var pct = e.status === 'En curso' ? Math.min(100, Math.round(((e.time - remaining) / e.time) * 100)) : (e.status === 'Finalizado' ? 100 : 0);
+        var statusCls = e.status === 'En curso' ? 'running' : (e.status === 'Finalizado' ? 'done' : 'stopped');
+        var tr = document.createElement('tr');
+        tr.className = i === ipSelectedIdx ? 'selected' : '';
+        tr.onclick = function () { ipSelectedIdx = i; renderIpHistory(); };
+        tr.oncontextmenu = function (ev) { ev.preventDefault(); ctxIdx = i; ctxMode = 'ip'; showCtx(ev); };
+        tr.innerHTML = '<td>' + esc(e.host) + '</td><td>' + e.port + '</td><td>' + esc(e.method) + '</td><td>' + formatSec(e.time) + '</td>' +
+            '<td>' + new Date(e.startedAt).toLocaleTimeString() + '</td><td>' + (remaining > 0 ? formatSec(remaining) : '—') + '</td>' +
+            '<td><div class="progress-bar"><div class="progress-fill ' + statusCls + '" style="width:' + pct + '%"></div></div></td>' +
+            '<td><span class="status-badge ' + statusCls + '">' + e.status + '</span></td>';
+        body.appendChild(tr);
+    });
+    updateEmptyState('ip'); refreshStatsBar();
+}
+
+function renderUrlHistory() {
+    var body = $('urlHistoryBody'); if (!body) return;
+    body.innerHTML = '';
+    urlHistory.forEach(function (e, i) {
+        var now = new Date();
+        var ends = new Date(e.endsAt);
+        var remaining = e.status === 'En curso' ? Math.max(0, Math.round((ends - now) / 1000)) : 0;
+        if (e.status === 'En curso' && remaining <= 0) { e.status = 'Finalizado'; saveLocal(); }
+        var pct = e.status === 'En curso' ? Math.min(100, Math.round(((e.time - remaining) / e.time) * 100)) : (e.status === 'Finalizado' ? 100 : 0);
+        var statusCls = e.status === 'En curso' ? 'running' : (e.status === 'Finalizado' ? 'done' : 'stopped');
+        var tr = document.createElement('tr');
+        tr.className = i === urlSelectedIdx ? 'selected' : '';
+        tr.onclick = function () { urlSelectedIdx = i; renderUrlHistory(); };
+        tr.oncontextmenu = function (ev) { ev.preventDefault(); ctxIdx = i; ctxMode = 'url'; showCtx(ev); };
+        tr.innerHTML = '<td>' + esc(e.domain || e.url) + '</td><td>' + e.port + '</td><td>' + esc(e.method) + '</td><td>' + formatSec(e.time) + '</td>' +
+            '<td>' + new Date(e.startedAt).toLocaleTimeString() + '</td><td>' + (remaining > 0 ? formatSec(remaining) : '—') + '</td>' +
+            '<td><div class="progress-bar"><div class="progress-fill ' + statusCls + '" style="width:' + pct + '%"></div></div></td>' +
+            '<td><span class="status-badge ' + statusCls + '">' + e.status + '</span></td>';
+        body.appendChild(tr);
+    });
+    updateEmptyState('url'); refreshStatsBar();
+}
+
+// ── Stats bar ──────────────────────────────────────────────────────
+function refreshStatsBar() {
+    var el4 = $('statL4'); if (el4) el4.textContent = '⚡ L4: ' + stats.ipStarted;
+    var el7 = $('statL7'); if (el7) el7.textContent = '🌐 L7: ' + stats.urlStarted;
+    var elT = $('statTotal'); if (elT) elT.textContent = '📊 Total: ' + (stats.ipStarted + stats.urlStarted);
+    var elP = $('statPlan'); if (elP) elP.textContent = '⭐ ' + appConfig.plan.name;
+}
+
+// ── Tick (update running attacks) ──────────────────────────────────
+function tick() { renderIpHistory(); renderUrlHistory(); }
+
+// ── Poll Mbps ──────────────────────────────────────────────────────
+async function pollMbps() {
+    var hasRunning = ipHistory.some(function(e){return e.status==='En curso';}) || urlHistory.some(function(e){return e.status==='En curso';});
+    var el = $('statMbps'); if (!el) return;
+    if (!hasRunning) { el.textContent = '📶 — Mbps'; return; }
+    try {
+        var d = await AttackApi.GetCombinedStatsAsync();
+        var tx = d.TotalTxMbps, unit = 'Mbps';
+        if (tx >= 1000) { tx = (tx / 1000).toFixed(2); unit = 'Gbps'; }
+        el.textContent = '📶 ↑' + tx + ' ' + unit + '  ↓' + d.TotalRxMbps + ' Mbps  (' + d.TotalRunning + ' proc)';
+    } catch (e) { }
+}
+
+// ── Navbar status ──────────────────────────────────────────────────
+async function pollNavbarStatus() {}
+
+// ── Filters ────────────────────────────────────────────────────────
+function filterIp(f, btn) { filterHistory('ip', f, btn); }
+function filterUrl(f, btn) { filterHistory('url', f, btn); }
+function filterHistory(mode, f, btn) {
+    var parent = btn ? btn.parentElement : null;
+    if (parent) parent.querySelectorAll('.atk-filter-btn').forEach(function(b){b.classList.remove('active');});
+    if (btn) btn.classList.add('active');
+    var bodyId = mode === 'ip' ? 'ipHistoryBody' : 'urlHistoryBody';
+    var body = $(bodyId); if (!body) return;
+    body.querySelectorAll('tr').forEach(function (tr) {
+        var badge = tr.querySelector('.status-badge');
+        if (!badge) return;
+        if (f === 'all') tr.style.display = '';
+        else if (f === 'running') tr.style.display = badge.classList.contains('running') ? '' : 'none';
+        else tr.style.display = !badge.classList.contains('running') ? '' : 'none';
+    });
+}
+
+// ── Repeat / Delete / Save ─────────────────────────────────────────
+function repeatIp() {
+    if (ipSelectedIdx < 0 || ipSelectedIdx >= ipHistory.length) return;
+    var e = ipHistory[ipSelectedIdx];
+    $('ipHost').value = e.host; $('ipPort').value = e.port; $('ipTime').value = e.time;
+    if ($('ipMethods')) $('ipMethods').value = e.method;
+}
+function deleteIp() {
+    if (ipSelectedIdx < 0 || ipSelectedIdx >= ipHistory.length) return;
+    ipHistory.splice(ipSelectedIdx, 1); ipSelectedIdx = -1; renderIpHistory(); saveLocal();
+}
+function repeatUrl() {
+    if (urlSelectedIdx < 0 || urlSelectedIdx >= urlHistory.length) return;
+    var e = urlHistory[urlSelectedIdx];
+    $('urlHost').value = e.url || e.domain; $('urlPort').value = e.port; $('urlTime').value = e.time;
+    if ($('urlMethods')) $('urlMethods').value = e.method;
+}
+function deleteUrl() {
+    if (urlSelectedIdx < 0 || urlSelectedIdx >= urlHistory.length) return;
+    urlHistory.splice(urlSelectedIdx, 1); urlSelectedIdx = -1; renderUrlHistory(); saveLocal();
+}
+function saveAllIps() {
+    var ips = ipHistory.map(function(e){return e.host;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+    if (ips.length === 0) { toast('No IPs to save.', 'info'); return; }
+    var blob = new Blob([ips.join('\n')], {type: 'text/plain'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ips.txt'; a.click();
+}
+
+// ── Context menu ───────────────────────────────────────────────────
+function showCtx(ev) {
+    var menu = $('ctxMenu'); if (!menu) return;
+    menu.style.display = 'block'; menu.style.left = ev.pageX + 'px'; menu.style.top = ev.pageY + 'px';
+}
+document.addEventListener('click', function () { var m = $('ctxMenu'); if (m) m.style.display = 'none'; });
+function ctxCopyTarget() {
+    var list = ctxMode === 'ip' ? ipHistory : urlHistory;
+    if (ctxIdx >= 0 && ctxIdx < list.length) {
+        var t = ctxMode === 'ip' ? list[ctxIdx].host : (list[ctxIdx].domain || list[ctxIdx].url);
+        navigator.clipboard.writeText(t).then(function(){toast('Copied: ' + t, 'success');});
+    }
+}
+function ctxRepeat() { if (ctxMode === 'ip') { ipSelectedIdx = ctxIdx; repeatIp(); } else { urlSelectedIdx = ctxIdx; repeatUrl(); } }
+function ctxDelete() { if (ctxMode === 'ip') { ipSelectedIdx = ctxIdx; deleteIp(); } else { urlSelectedIdx = ctxIdx; deleteUrl(); } }
+
+// ── LocalStorage persistence ───────────────────────────────────────
+function saveLocal() {
+    try {
+        localStorage.setItem('ah_ipHistory', JSON.stringify(ipHistory));
+        localStorage.setItem('ah_urlHistory', JSON.stringify(urlHistory));
+        localStorage.setItem('ah_stats', JSON.stringify(stats));
+    } catch (e) { }
+}
+function loadLocal() {
+    try {
+        ipHistory = JSON.parse(localStorage.getItem('ah_ipHistory') || '[]');
+        urlHistory = JSON.parse(localStorage.getItem('ah_urlHistory') || '[]');
+        stats = JSON.parse(localStorage.getItem('ah_stats') || '{}');
+        stats.ipStarted = stats.ipStarted || 0;
+        stats.urlStarted = stats.urlStarted || 0;
+    } catch (e) { }
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function initAttackPage() {
+    loadLocal();
+    refreshStatsBar();
+    await loadAllMethods();
+    renderIpHistory();
+    renderUrlHistory();
+    setInterval(tick, 1000);
+    setInterval(pollMbps, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+    // Set user name immediately to avoid flash of "User"
+    var user = localStorage.getItem('ah_user') || 'User';
+    var sName = $('sidebarUserName'), sAvatar = $('sidebarUserAvatar');
+    if (sName) sName.textContent = user;
+    if (sAvatar) sAvatar.textContent = user.charAt(0).toUpperCase();
+
+    checkAuth();
+    initFirebasePresence();
+    showAdminNavIfNeeded();
+    if (typeof initLang === 'function') initLang();
+    await initAttackPage();
+    initAttackPageUI();
+    if (window.location.hash === '#url') { switchAttackTab('url'); switchMode('url'); }
+});
+</script>
+</body>
+</html>

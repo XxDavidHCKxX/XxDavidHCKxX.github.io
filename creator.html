@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttackHub - Creator</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/attack.css">
+</head>
+<body>
+<div class="atk-layout">
+    <nav class="atk-navbar">
+        <a href="index.html" class="atk-navbar-brand">
+            <span class="brand-icon">&#9889;</span>
+            <span class="brand-text">Attack<span>Hub</span></span>
+        </a>
+        <div class="atk-navbar-nav">
+            <a href="dashboard.html" class="atk-nav-link"><span class="nav-icon">&#127968;</span> <span data-i18n="nav_dashboard">Dashboard</span></a>
+            <a href="attack.html" class="atk-nav-link"><span class="nav-icon">&#128163;</span> AttackHub</a>
+            <a href="status.html" class="atk-nav-link"><span class="nav-icon">&#128225;</span> API Status</a>
+            <a href="profile.html" class="atk-nav-link"><span class="nav-icon">&#128100;</span> <span data-i18n="nav_profile">Profile</span></a>
+            <a href="creator.html" class="atk-nav-link active"><span class="nav-icon">&#128081;</span> Creator</a>
+            <a href="admin.html" class="atk-nav-link" id="adminNavLink" style="display:none;"><span class="nav-icon">&#128737;</span> Admin</a>
+        </div>
+        <div class="atk-navbar-right">
+            <div class="atk-navbar-user">
+                <div class="atk-navbar-avatar" id="sidebarUserAvatar">U</div>
+                <span id="sidebarUserName">User</span>
+            </div>
+            <button class="atk-navbar-logout" onclick="logout()">&#128682; <span data-i18n="logout">Logout</span></button>
+        </div>
+    </nav>
+    <main class="atk-main">
+        <div class="atk-content">
+            <h1 class="atk-page-title">Creator</h1>
+            <p class="atk-page-subtitle">About the developer behind AttackHub.</p>
+
+            <!-- Hero Card -->
+            <div class="atk-tool-card" style="text-align:center;position:relative;overflow:hidden;border:1px solid #21262d;">
+                <div class="creator-glow"></div>
+                <div class="creator-avatar" style="margin-bottom:20px;">
+                    <div class="avatar-ring">
+                        <div class="avatar-inner">&#128081;</div>
+                    </div>
+                </div>
+                <div class="creator-title">El Apaga Perras ON TOP</div>
+                <div class="creator-name">UnhittableOG</div>
+                <div class="creator-badge">&#9889; Creator of AttackHub</div>
+                <div class="creator-socials">
+                    <a href="https://www.instagram.com/unhittableog/" target="_blank" rel="noopener" class="social-btn instagram">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                        </svg>
+                        <span>@unhittableog</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="atk-tool-card">
+                <div class="atk-tool-header">
+                    <span class="tool-icon">&#128640;</span>
+                    <span class="tool-title">About the Project</span>
+                </div>
+                <div class="creator-info-grid" style="margin-top:16px;">
+                    <div class="creator-info-item">
+                        <div class="creator-info-icon">&#9889;</div>
+                        <div>
+                            <div class="creator-info-title">AttackHub</div>
+                            <div class="creator-info-desc">Network testing tool with Layer 4 and Layer 7 support</div>
+                        </div>
+                    </div>
+                    <div class="creator-info-item">
+                        <div class="creator-info-icon">&#128187;</div>
+                        <div>
+                            <div class="creator-info-title">MultiTool Desktop</div>
+                            <div class="creator-info-desc">.NET desktop application with full interface</div>
+                        </div>
+                    </div>
+                    <div class="creator-info-item">
+                        <div class="creator-info-icon">&#127760;</div>
+                        <div>
+                            <div class="creator-info-title">Web Panel</div>
+                            <div class="creator-info-desc">Web panel with history, statistics and API management</div>
+                        </div>
+                    </div>
+                    <div class="creator-info-item">
+                        <div class="creator-info-icon">&#128272;</div>
+                        <div>
+                            <div class="creator-info-title">Multi-API</div>
+                            <div class="creator-info-desc">Support for 5 APIs with health check and automatic failover</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credits -->
+            <div class="atk-tool-card" style="text-align:center;">
+                <div style="font-size:13px;color:#94a3b8;">
+                    Made with &#10084;&#65039; by <strong style="color:#06b6d4;">UnhittableOG</strong>
+                </div>
+                <div style="margin-top:6px;">
+                    <a href="https://www.instagram.com/unhittableog/" target="_blank" rel="noopener" style="color:#e1306c;font-size:13px;">
+                        Follow on Instagram &#10148;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/lang.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    initFirebasePresence();
+    showAdminNavIfNeeded();
+    if (typeof initLang === 'function') initLang();
+    const user = localStorage.getItem('ah_user') || 'Usuario';
+    const sName = document.getElementById('sidebarUserName');
+    const sAvatar = document.getElementById('sidebarUserAvatar');
+    if (sName) sName.textContent = user;
+    if (sAvatar) sAvatar.textContent = user.charAt(0).toUpperCase();
+    pollNavbarStatus();
+});
+</script>
+</body>
+</html>
