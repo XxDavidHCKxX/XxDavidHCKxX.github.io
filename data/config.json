@@ -1,0 +1,20 @@
+{
+    "plan": {
+        "name": "Premium",
+        "maxTime": 300,
+        "maxConcurrent": 3
+    },
+    "methods_l4": [
+        "UDP", "TCP", "SYN", "ACK", "GRE", "ICMP", "DNS", "NTP",
+        "SSDP", "CHARGEN", "MEMCACHED", "ARD", "CLDAP", "RDP",
+        "VSE", "OVH-TCP", "OVH-UDP", "GAME", "FIVEM", "TS3"
+    ],
+    "methods_l7": [
+        "GET", "POST", "HEAD", "HTTP-FLOOD", "SLOWLORIS", "OPTIONS",
+        "CF-BYPASS", "BROWSER", "TLS", "RAW", "STRESS"
+    ],
+    "users": [
+        { "username": "admin", "password": "admin123", "plan": "Premium", "role": "admin" },
+        { "username": "user1", "password": "user123", "plan": "Free", "role": "user" }
+    ]
+}

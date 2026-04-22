@@ -1,0 +1,291 @@
+﻿// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// AttackHub Web â€“ JavaScript Principal (shared utilities for all pages)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+// â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Flag to prevent lockdown check during logout
+var _isLoggingOut = false;
+
+function checkAuth() {
+    const user = localStorage.getItem('ah_user');
+    if (!user && !window.location.pathname.endsWith('login.html')) {
+        window.location.href = 'login.html';
+        return;
+    }
+    if (!user) return;
+
+    // Real-time listener for kick/lockdown
+    if (typeof fbRef === 'function') {
+        // Check kicked (real-time)
+        fbRef('presence/' + user).on('value', function(snap) {
+            if (_isLoggingOut) return; // Skip during logout
+            var p = snap.val();
+            if (p && p.kicked === true) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Check lockdown (real-time)
+        fbRef('system/lockdown').on('value', function(snap) {
+            if (_isLoggingOut) return; // Skip during logout
+            var lockdown = snap.val();
+            var role = localStorage.getItem('ah_role') || 'user';
+            var userLockdownExempt = localStorage.getItem('ah_lockdown_exempt') === 'true';
+            // Skip if creator OR user is exempt from lockdown
+            if (lockdown && lockdown.enabled === true && role !== 'creator' && !userLockdownExempt) {
+                if (!window.location.pathname.endsWith('maintenance.html')) {
+                    localStorage.setItem('ah_lockdown_msg', lockdown.message || 'System maintenance in progress.');
+                    window.location.href = 'maintenance.html';
+                }
+            }
+        });
+
+        // Check if user is exempt from lockdown
+        fbRef('users/' + user + '/lockdownExempt').on('value', function(snap) {
+            if (snap.val() === true) {
+                localStorage.setItem('ah_lockdown_exempt', 'true');
+            } else {
+                localStorage.removeItem('ah_lockdown_exempt');
+            }
+        });
+    }
+}
+
+function logout() {
+    _isLoggingOut = true;
+    const user = localStorage.getItem('ah_user');
+
+    // Remove all Firebase listeners to prevent interference
+    if (user && typeof fbRef === 'function') {
+        try {
+            fbRef('presence/' + user).off();
+            fbRef('system/lockdown').off();
+            fbRef('users/' + user + '/lockdownExempt').off();
+        } catch(e) {}
+    }
+
+    // Mark offline and log logout
+    try {
+        if (user && typeof fbSetOffline === 'function') {
+            fbSetOffline(user);
+            fbLogLogout(user);
+        }
+    } catch(e) { console.warn('Firebase unavailable', e); }
+
+    // Clear all local storage
+    localStorage.clear();
+
+    // Reset flags
+    _authListenersInitialized = false;
+
+    // Redirect to login
+    window.location.href = 'login.html';
+}
+
+// â”€â”€ Show Admin nav link if admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function showAdminNavIfNeeded() {
+    const role = localStorage.getItem('ah_role') || 'user';
+    const link = document.getElementById('adminNavLink');
+    if (link && (role === 'admin' || role === 'creator')) link.style.display = '';
+    // Load navbar user (name + photo)
+    updateNavbarUser();
+    // Also verify from Firebase
+    const user = localStorage.getItem('ah_user');
+    if (user && typeof fbRef === 'function') {
+        try {
+            fbRef('users/' + user).once('value').then(function(snap) {
+                if (snap.exists()) {
+                    var fbRole = snap.val().role || 'user';
+                    localStorage.setItem('ah_role', fbRole);
+                    if (link) link.style.display = (fbRole === 'admin' || fbRole === 'creator') ? '' : 'none';
+                }
+            });
+        } catch(e) {}
+    }
+}
+
+// â”€â”€ Load profile photo into navbar avatar on all pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function updateNavbarUser() {
+    var user = localStorage.getItem('ah_user');
+    if (!user) return;
+    var navName = document.getElementById('sidebarUserName');
+    var navAvatar = document.getElementById('sidebarUserAvatar');
+    if (navName) navName.textContent = user;
+    if (navAvatar) navAvatar.textContent = user.charAt(0).toUpperCase();
+    var cached = localStorage.getItem('ah_photo');
+    if (cached && navAvatar) {
+        navAvatar.style.backgroundImage = 'url(' + cached + ')';
+        navAvatar.style.backgroundSize = 'cover';
+        navAvatar.style.backgroundPosition = 'center';
+        navAvatar.textContent = '';
+    }
+    if (typeof fbRef !== 'function') return;
+    try {
+        fbRef('users/' + user).once('value').then(function(snap) {
+            if (snap.exists()) {
+                var data = snap.val();
+                var displayName = data.displayName || data.username || user;
+                if (navName) navName.textContent = displayName;
+                if (data.photoUrl && navAvatar) {
+                    navAvatar.style.backgroundImage = 'url(' + data.photoUrl + ')';
+                    navAvatar.style.backgroundSize = 'cover';
+                    navAvatar.style.backgroundPosition = 'center';
+                    navAvatar.textContent = '';
+                    try { localStorage.setItem('ah_photo', data.photoUrl); } catch(e) {}
+                } else if (navAvatar && !data.photoUrl) {
+                    navAvatar.style.backgroundImage = '';
+                    navAvatar.textContent = displayName.charAt(0).toUpperCase();
+                    try { localStorage.removeItem('ah_photo'); } catch(e) {}
+                }
+            }
+        });
+    } catch(e) {}
+}
+function loadNavbarPhoto() {
+    var user = localStorage.getItem('ah_user');
+    if (!user) return;
+    var navAvatar = document.getElementById('sidebarUserAvatar');
+    if (!navAvatar) return;
+    // Load from cache instantly
+    var cached = localStorage.getItem('ah_photo');
+    if (cached) {
+        navAvatar.style.backgroundImage = 'url(' + cached + ')';
+        navAvatar.style.backgroundSize = 'cover';
+        navAvatar.style.backgroundPosition = 'center';
+        navAvatar.textContent = '';
+    }
+    // Then verify from Firebase
+    if (typeof fbRef !== 'function') return;
+    try {
+        fbRef('users/' + user).once('value').then(function(snap) {
+            if (snap.exists() && snap.val().photoUrl) {
+                navAvatar.style.backgroundImage = 'url(' + snap.val().photoUrl + ')';
+                navAvatar.style.backgroundSize = 'cover';
+                navAvatar.style.backgroundPosition = 'center';
+                navAvatar.textContent = '';
+                try { localStorage.setItem('ah_photo', snap.val().photoUrl); } catch(e) {}
+            } else if (!snap.exists() || !snap.val().photoUrl) {
+                // No photo in Firebase, clear cache
+                navAvatar.style.backgroundImage = '';
+                navAvatar.textContent = user.charAt(0).toUpperCase();
+                try { localStorage.removeItem('ah_photo'); } catch(e) {}
+            }
+        });
+    } catch(e) {}
+}
+
+// â”€â”€ Inject language toggle button into navbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function injectLangToggle() {
+    if (document.getElementById('langBtn')) return; // already exists
+    var right = document.querySelector('.atk-navbar-right');
+    if (!right) return;
+    var btn = document.createElement('button');
+    btn.id = 'langBtn';
+    btn.className = 'wb-lang-btn';
+    btn.title = 'Switch language';
+    btn.onclick = function() { if (typeof toggleLang === 'function') toggleLang(); };
+    var lang = localStorage.getItem('ah_lang') || 'en';
+    btn.textContent = '\uD83C\uDF10 ' + lang.toUpperCase();
+    btn.style.cssText = 'background:none;border:1px solid #30363d;color:#c9d1d9;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px;';
+    right.insertBefore(btn, right.firstChild);
+}
+
+// â”€â”€ Firebase presence keepalive (call on every page) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function initFirebasePresence() {
+    try {
+        const user = localStorage.getItem('ah_user');
+        if (user && typeof fbSetOnline === 'function') {
+            fbSetOnline(user);
+            fbEnsureUser(user, localStorage.getItem('ah_plan'));
+            // Save user IP to Firebase
+            fetch('https://api.ipify.org?format=json').then(function(r) { return r.json(); }).then(function(d) {
+                if (d.ip && typeof fbRef === 'function') {
+                    fbRef('users/' + user).update({ lastIP: d.ip });
+                }
+            }).catch(function() {});
+            // Check plan expiration
+            if (typeof fbRef === 'function') {
+                fbRef('users/' + user).once('value').then(function(snap) {
+                    if (snap.exists()) {
+                        var d = snap.val();
+                        if (d.planExpiresAt && typeof d.planExpiresAt === 'number' && Date.now() > d.planExpiresAt) {
+                            fbRef('users/' + user).update({ plan: 'Free', planExpiresAt: null });
+                            localStorage.setItem('ah_plan', 'Free');
+                            if (typeof toast === 'function') toast('Your plan has expired. Reverted to Free.', 'info');
+                        }
+                    }
+                }).catch(function() {});
+            }
+        }
+    } catch(e) { console.warn('Firebase unavailable', e); }
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HELPERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+function formatSec(s) {
+    const t = Math.floor(s);
+    if (t >= 3600) return Math.floor(t/3600) + 'h ' + Math.floor((t%3600)/60) + 'm ' + (t%60) + 's';
+    if (t >= 60) return Math.floor(t/60) + 'm ' + (t%60) + 's';
+    return t + 's';
+}
+
+function formatDateTime(iso) {
+    if (!iso) return 'â€”';
+    const d = new Date(iso);
+    return d.toLocaleString('es', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function enc(s) { return encodeURIComponent(s); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function $(id) { return document.getElementById(id); }
+
+function toast(msg, type) {
+    const container = $('toasts');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'toast toast-' + (type || 'info');
+    div.textContent = msg;
+    container.appendChild(div);
+    setTimeout(function() { div.remove(); }, 3000);
+}
+
+function populateSelect(id, items) {
+    const sel = $(id);
+    if (!sel) return;
+    sel.innerHTML = '';
+    items.forEach(function(m) {
+        const o = document.createElement('option');
+        o.value = m; o.textContent = m;
+        sel.appendChild(o);
+    });
+}
+
+function blockInvalidNum(ev) {
+    if (['e','E','+','-','.'].indexOf(ev.key) >= 0) ev.preventDefault();
+}
+
+function clampPort(el) {
+    var v = parseInt(el.value);
+    if (isNaN(v) || v < 1) v = 1;
+    if (v > 65535) v = 65535;
+    el.value = v;
+}
+
+function clampTime(el) {
+    var v = parseInt(el.value);
+    if (isNaN(v) || v < 1) v = 1;
+    el.value = v;
+}
+
+function isValidIp(ip) {
+    const parts = ip.split('.');
+    return parts.length === 4 && parts.every(function(p) { return /^\d{1,3}$/.test(p) && +p >= 0 && +p <= 255; });
+}
+
+function parseUrlDomain(input) {
+    var url = input.trim();
+    if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) url = 'https://' + url;
+    try { return new URL(url).hostname; } catch(e) { return null; }
+}
+
